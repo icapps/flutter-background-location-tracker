@@ -44,7 +44,6 @@ class LocationServiceConnection(private val listener: LocationUpdateListener) : 
         if (bound) {
             Log.i(TAG, "unbind service: ${service}, connection: $this")
             ctx.unbindService(this)
-            service?.onUnbind(Intent())
             bound = false
         }
     }
