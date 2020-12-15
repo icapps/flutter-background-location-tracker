@@ -1,7 +1,7 @@
-import 'package:flutter/material.dart';
 import 'dart:async';
 
 import 'package:background_location_tracker/background_location_tracker.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 void _onLocationUpdate() {
@@ -25,6 +25,7 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   var isTracking = false;
 
+  @override
   Widget build(BuildContext context) {
     return MaterialApp(
       home: Scaffold(
@@ -34,7 +35,7 @@ class _MyAppState extends State<MyApp> {
         body: Column(
           children: [
             MaterialButton(
-              child: Text('Start Tracking'),
+              child: const Text('Start Tracking'),
               onPressed: isTracking
                   ? null
                   : () {
@@ -43,7 +44,7 @@ class _MyAppState extends State<MyApp> {
                     },
             ),
             MaterialButton(
-              child: Text('Stop Tracking'),
+              child: const Text('Stop Tracking'),
               onPressed: isTracking
                   ? () {
                       BackgroundLocationTrackerManager.stopTracking();
@@ -57,11 +58,11 @@ class _MyAppState extends State<MyApp> {
                   stream: Repo().stream,
                   builder: (context, value) {
                     if (!value.hasData || value.data.isEmpty) {
-                      return Text('Empty');
+                      return const Text('Empty');
                     }
                     return ListView.builder(
                       itemCount: value.data.length,
-                      itemBuilder: (BuildContext context, int index) {
+                      itemBuilder: (context, index) {
                         final item = value.data[index];
                         return Text('Lat: ${item.lat}, Lon: ${item.lon}');
                       },
@@ -79,19 +80,14 @@ class _MyAppState extends State<MyApp> {
 
 class Repo {
   static Repo _instance;
-  final _list = List<BackgroundLocationUpdateData>();
+  final _list = <BackgroundLocationUpdateData>[];
   final _controller = StreamController<List<BackgroundLocationUpdateData>>.broadcast();
 
   Stream<List<BackgroundLocationUpdateData>> get stream => _controller.stream;
 
   Repo._();
 
-  factory Repo() {
-    if (_instance == null) {
-      _instance = Repo._();
-    }
-    return _instance;
-  }
+  factory Repo() => _instance ??= Repo._();
 
   void update(BackgroundLocationUpdateData data) {
     _list.add(data);
@@ -101,13 +97,13 @@ class Repo {
 }
 
 Future<void> sendNotification(String body) async {
-  final settings = InitializationSettings(android: AndroidInitializationSettings('app_icon'));
+  const settings = InitializationSettings(android: AndroidInitializationSettings('app_icon'));
   await FlutterLocalNotificationsPlugin().initialize(settings, onSelectNotification: (payload) async {});
-  FlutterLocalNotificationsPlugin().show(
+  await FlutterLocalNotificationsPlugin().show(
     DateTime.now().hashCode,
     'Update received in Flutter',
     body,
-    NotificationDetails(
+    const NotificationDetails(
       android: AndroidNotificationDetails(
         'flutter_location_updates',
         'Location updated in flutter',
