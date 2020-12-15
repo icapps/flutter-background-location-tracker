@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/background_location_tracker.iml" filepath="$PROJECT_DIR$/background_location_tracker.iml" />
+      <module fileurl="file://$PROJECT_DIR$/android/background_location_tracker_android.iml" filepath="$PROJECT_DIR$/android/background_location_tracker_android.iml" />
+      <module fileurl="file://$PROJECT_DIR$/example/android/background_location_tracker_example_android.iml" filepath="$PROJECT_DIR$/example/android/background_location_tracker_example_android.iml" />
+    </modules>
+  </component>
+</project>

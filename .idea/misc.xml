@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectType">
+    <option name="id" value="io.flutter" />
+  </component>
+  <component name="SuppressABINotification">
+    <option name="modulesWithSuppressedNotConfigured">
+      <set>
+        <option value="background_location_tracker_example_android" />
+      </set>
+    </option>
+  </component>
+</project>
