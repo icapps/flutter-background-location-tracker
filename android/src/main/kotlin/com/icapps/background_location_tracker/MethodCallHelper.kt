@@ -6,20 +6,14 @@ import android.util.Log
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.OnLifecycleEvent
+import com.icapps.background_location_tracker.flutter.FlutterBackgroundManager
 import com.icapps.background_location_tracker.service.LocationServiceConnection
 import com.icapps.background_location_tracker.service.LocationUpdateListener
 import com.icapps.background_location_tracker.utils.SharedPrefsUtil
-import com.icapps.background_location_tracker.utils.NotificationUtil
-import io.flutter.embedding.engine.FlutterEngine
-import io.flutter.embedding.engine.dart.DartExecutor
-import io.flutter.embedding.engine.plugins.shim.ShimPluginRegistry
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
-import io.flutter.view.FlutterCallbackInformation
-import io.flutter.view.FlutterMain
 
 class MethodCallHelper(private val ctx: Context) : MethodChannel.MethodCallHandler, LifecycleObserver, LocationUpdateListener {
-    private lateinit var backgroundChannel: MethodChannel
 
     private var serviceConnection = LocationServiceConnection(this)
 
@@ -43,7 +37,6 @@ class MethodCallHelper(private val ctx: Context) : MethodChannel.MethodCallHandl
         }
         val callbackDispatcherHandleKey = call.argument<Long>("callbackHandle")!!
         SharedPrefsUtil.saveCallbackDispatcherHandleKey(ctx, callbackDispatcherHandleKey)
-//        serviceConnection.bound(ctx)
         result.success(true)
     }
 
@@ -81,30 +74,9 @@ class MethodCallHelper(private val ctx: Context) : MethodChannel.MethodCallHandl
         serviceConnection.onStop(ctx)
     }
 
-    override fun onLocationUpdate(location: Location) = sendBackgroundLocation(location)
-
-    private fun sendBackgroundLocation(location: Location) {
-        val engine = FlutterEngine(ctx)
-        FlutterMain.ensureInitializationComplete(ctx, null)
-
-        val callbackHandle = SharedPrefsUtil.getCallbackHandle(ctx)
-        val callbackInfo = FlutterCallbackInformation.lookupCallbackInformation(callbackHandle)
-        val dartBundlePath = FlutterMain.findAppBundlePath()
-
-        //Backwards compatibility with v1. We register all the user's plugins.
-        BackgroundLocationTrackerPlugin.pluginRegistryCallback?.registerWith(ShimPluginRegistry(engine))
-        engine.dartExecutor.executeDartCallback(DartExecutor.DartCallback(ctx.assets, dartBundlePath, callbackInfo))
-
-        backgroundChannel = MethodChannel(engine.dartExecutor, BACKGROUND_CHANNEL_NAME)
-        backgroundChannel.setMethodCallHandler(this)
-        val data = mutableMapOf<String, Any>()
-        data["lat"] = location.latitude
-        data["lon"] = location.longitude
-        backgroundChannel.invokeMethod("onLocationUpdate", data)
-    }
+    override fun onLocationUpdate(location: Location) = FlutterBackgroundManager.sendLocation(ctx, location)
 
     companion object {
-        const val BACKGROUND_CHANNEL_NAME = "com.icapps.background_location_tracker/background_channel"
         private val TAG = MethodCallHelper::class.java.simpleName
 
         private var sInstance: MethodCallHelper? = null

@@ -4,7 +4,6 @@ import android.app.ActivityManager
 import android.app.Service
 import android.content.Context
 import android.content.Intent
-import android.content.ServiceConnection
 import android.content.res.Configuration
 import android.location.Location
 import android.os.Binder
@@ -19,6 +18,7 @@ import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
+import com.icapps.background_location_tracker.flutter.FlutterBackgroundManager
 import com.icapps.background_location_tracker.utils.SharedPrefsUtil
 import com.icapps.background_location_tracker.utils.NotificationUtil
 
@@ -177,15 +177,14 @@ class LocationUpdatesService : Service() {
         Log.i(TAG, "New location: $location")
         this.location = location
 
-        // Notify anyone listening for broadcasts about the new location.
-        val intent = Intent(ACTION_BROADCAST)
-        intent.putExtra(EXTRA_LOCATION, location)
-        LocalBroadcastManager.getInstance(applicationContext).sendBroadcast(intent)
-
-        // Update notification content if running as a foreground service.
         if (serviceIsRunningInForeground(this)) {
             Log.i(TAG, "serviceIsRunningInForeground so we update the notification")
             NotificationUtil.showNotification(this, location)
+            FlutterBackgroundManager.sendLocation(applicationContext, location)
+        } else {
+            val intent = Intent(ACTION_BROADCAST)
+            intent.putExtra(EXTRA_LOCATION, location)
+            LocalBroadcastManager.getInstance(applicationContext).sendBroadcast(intent)
         }
     }
 
@@ -215,9 +214,9 @@ class LocationUpdatesService : Service() {
      *
      * @param context The [Context].
      */
+    @Suppress("DEPRECATION")
     private fun serviceIsRunningInForeground(context: Context): Boolean {
-        val manager = context.getSystemService(
-                Context.ACTIVITY_SERVICE) as ActivityManager
+        val manager = context.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
         for (service in manager.getRunningServices(Int.MAX_VALUE)) {
             if (javaClass.name == service.service.className) {
                 if (service.foreground) {

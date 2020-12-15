@@ -1,4 +1,4 @@
-package com.icapps.background_location_tracker
+package com.icapps.background_location_tracker.receiver
 
 import android.content.BroadcastReceiver
 import android.content.Context

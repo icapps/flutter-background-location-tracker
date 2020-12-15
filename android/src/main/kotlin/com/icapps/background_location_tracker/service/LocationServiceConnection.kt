@@ -8,7 +8,7 @@ import android.content.ServiceConnection
 import android.location.Location
 import android.os.IBinder
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
-import com.icapps.background_location_tracker.LocationReceiver
+import com.icapps.background_location_tracker.receiver.LocationReceiver
 
 class LocationServiceConnection(private val listener: LocationUpdateListener) : ServiceConnection {
     var service: LocationUpdatesService? = null
