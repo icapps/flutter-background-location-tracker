@@ -67,7 +67,6 @@ class LocationUpdatesService : Service() {
         val handlerThread = HandlerThread(TAG)
         handlerThread.start()
         serviceHandler = Handler(handlerThread.looper)
-        NotificationUtil.createNotificationChannels(this, "Background Tracking")
     }
 
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {

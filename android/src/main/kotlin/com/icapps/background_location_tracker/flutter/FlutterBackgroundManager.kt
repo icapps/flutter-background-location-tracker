@@ -22,7 +22,7 @@ object FlutterBackgroundManager {
         val backgroundChannel = MethodChannel(engine.dartExecutor, BACKGROUND_CHANNEL_NAME)
         backgroundChannel.setMethodCallHandler { call, result ->
             when (call.method) {
-                "initialized" -> handleInitialized(call, result, backgroundChannel, location)
+                "initialized" -> handleInitialized(call, result, ctx, backgroundChannel, location)
                 else -> result.notImplemented()
             }
         }
@@ -36,10 +36,11 @@ object FlutterBackgroundManager {
         engine.dartExecutor.executeDartCallback(DartExecutor.DartCallback(ctx.assets, dartBundlePath, callbackInfo))
     }
 
-    private fun handleInitialized(call: MethodCall, result: MethodChannel.Result, channel: MethodChannel, location: Location) {
+    private fun handleInitialized(call: MethodCall, result: MethodChannel.Result, ctx: Context, channel: MethodChannel, location: Location) {
         val data = mutableMapOf<String, Any>()
         data["lat"] = location.latitude
         data["lon"] = location.longitude
+        data["logging_enabled"] = SharedPrefsUtil.isLoggingEnabled(ctx)
         channel.invokeMethod("onLocationUpdate", data)
     }
 }

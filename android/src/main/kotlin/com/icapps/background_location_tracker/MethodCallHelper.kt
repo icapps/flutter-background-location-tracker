@@ -6,9 +6,11 @@ import android.util.Log
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.OnLifecycleEvent
+import com.icapps.background_location_tracker.ext.checkRequiredFields
 import com.icapps.background_location_tracker.flutter.FlutterBackgroundManager
 import com.icapps.background_location_tracker.service.LocationServiceConnection
 import com.icapps.background_location_tracker.service.LocationUpdateListener
+import com.icapps.background_location_tracker.utils.NotificationUtil
 import com.icapps.background_location_tracker.utils.SharedPrefsUtil
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
@@ -30,12 +32,13 @@ class MethodCallHelper(private val ctx: Context) : MethodChannel.MethodCallHandl
     }
 
     private fun initialize(ctx: Context, call: MethodCall, result: MethodChannel.Result) {
-        val callbackHandleKey = "callbackHandle"
-        if (!call.hasArgument(callbackHandleKey)) {
-            result.error("404", "$callbackHandleKey not found, but required", null)
-            return
-        }
-        val callbackDispatcherHandleKey = call.argument<Long>("callbackHandle")!!
+        val callbackHandleKey = "callback_handle"
+        val channelNameKey = "android_config_channel_name"
+        val keys = listOf(callbackHandleKey, channelNameKey)
+        if (!call.checkRequiredFields(keys, result)) return
+        val callbackDispatcherHandleKey = call.argument<Long>(callbackHandleKey)!!
+        val channelName = call.argument<String>(channelNameKey)!!
+        NotificationUtil.createNotificationChannels(ctx, channelName)
         SharedPrefsUtil.saveCallbackDispatcherHandleKey(ctx, callbackDispatcherHandleKey)
         result.success(true)
     }

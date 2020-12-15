@@ -8,7 +8,7 @@ class BackgroundChannel {
 
   static void handleBackgroundUpdated(LocationUpdateCallback callback, {bool enableLogging = false}) {
     WidgetsFlutterBinding.ensureInitialized();
-    final _backgroundChannel = const MethodChannel(_BACKGROUND_CHANNEL_NAME)
+    const MethodChannel(_BACKGROUND_CHANNEL_NAME)
       ..setMethodCallHandler((call) async {
         switch (call.method) {
           case 'onLocationUpdate':
@@ -17,19 +17,17 @@ class BackgroundChannel {
           default:
             break;
         }
-      });
-    BackgroundLocationTrackerLogger.log('handleBackgroundUpdated initialized');
-    _backgroundChannel.invokeListMethod<void>(
-      'initialized',
-      {
-        'enableLogging': enableLogging,
-      },
-    );
+      })
+      ..invokeListMethod<void>(
+        'initialized',
+      );
   }
 
   static Future<void> handleLocationUpdate(MethodCall call, LocationUpdateCallback callback, {bool enableLogging = false}) async {
-    BackgroundLocationTrackerLogger.log('locationUpdate: ${call.arguments}');
     final data = call.arguments as Map<dynamic, dynamic>; // ignore: avoid_as
+    final isLoggingEnabled = data['logging_enabled'] as bool; // ignore: avoid_as
+    BackgroundLocationTrackerLogger.enableLogging = isLoggingEnabled;
+    BackgroundLocationTrackerLogger.log('locationUpdate: ${call.arguments}');
     final lat = data['lat'] as double; // ignore: avoid_as
     final lon = data['lon'] as double; // ignore: avoid_as
     callback(BackgroundLocationUpdateData(lat: lat, lon: lon));

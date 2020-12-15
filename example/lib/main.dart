@@ -4,14 +4,10 @@ import 'package:background_location_tracker/background_location_tracker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
-void _onLocationUpdate() {
-  BackgroundLocationTrackerManager.setLogging(true);
-  BackgroundLocationTrackerManager.handleBackgroundUpdated((data) => Repo().update(data));
-}
+void _onLocationUpdate() => BackgroundLocationTrackerManager.handleBackgroundUpdated((data) => Repo().update(data));
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  BackgroundLocationTrackerManager.setLogging(true);
   await BackgroundLocationTrackerManager.initialize(_onLocationUpdate);
   runApp(MyApp());
 }

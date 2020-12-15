@@ -10,9 +10,7 @@ abstract class LocationReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context?, intent: Intent?) {
         intent ?: return
         val location = intent.getParcelableExtra<Location>(LocationUpdatesService.EXTRA_LOCATION)
-        if (location != null) {
-            onLocationUpdate(location)
-        }
+        if (location != null) onLocationUpdate(location)
     }
 
     abstract fun onLocationUpdate(location: Location)

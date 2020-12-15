@@ -19,7 +19,7 @@ internal object NotificationUtil {
     /**
      * The name of the channel for notifications.
      */
-    private const val CHANNEL_ID = "background_tracking"
+    private const val CHANNEL_ID = "com_icapps_background_tracking_notification_channel"
 
     /**
      * The identifier for the notification displayed for the foreground service.
