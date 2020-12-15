@@ -30,7 +30,8 @@ class BackgroundLocationTrackerPlugin : FlutterPlugin, MethodCallHandler, Activi
     override fun onAttachedToActivity(binding: ActivityPluginBinding) {
         lifecycle = FlutterLifecycleAdapter.getActivityLifecycle(binding)
         if (methodCallHelper == null) {
-            methodCallHelper = MethodCallHelper(binding.activity.applicationContext)
+            Log.i(TAG, "New Method Call Helper $this")
+            methodCallHelper = MethodCallHelper.getInstance(binding.activity.applicationContext)
         }
         methodCallHelper?.let {
             lifecycle?.removeObserver(it)
@@ -52,8 +53,10 @@ class BackgroundLocationTrackerPlugin : FlutterPlugin, MethodCallHandler, Activi
         private fun registerBackgroundLocationManager(messenger: BinaryMessenger, ctx: Context) {
             val channel = MethodChannel(messenger, "com.icapps.background_location_tracker/foreground_channel")
             channel.setMethodCallHandler(BackgroundLocationTrackerPlugin().apply {
+                Log.i(TAG, "Creating the plugin $this")
                 if (methodCallHelper == null) {
-                    methodCallHelper = MethodCallHelper(ctx.applicationContext)
+                    Log.i(TAG, "New Method Call Helper when creating the plugin $this")
+                    methodCallHelper = MethodCallHelper.getInstance(ctx)
                 }
                 methodCallHelper?.let {
                     Log.i(TAG, "Add in on register $methodCallHelper to $lifecycle")

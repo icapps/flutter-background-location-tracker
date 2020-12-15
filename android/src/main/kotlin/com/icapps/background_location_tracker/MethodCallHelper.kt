@@ -1,18 +1,15 @@
 package com.icapps.background_location_tracker
 
 import android.content.Context
-import android.content.IntentFilter
 import android.location.Location
 import android.util.Log
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.OnLifecycleEvent
-import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.icapps.background_location_tracker.service.LocationServiceConnection
 import com.icapps.background_location_tracker.service.LocationUpdateListener
-import com.icapps.background_location_tracker.service.LocationUpdatesService
 import com.icapps.background_location_tracker.utils.SharedPrefsUtil
-import com.icapps.background_location_tracker.utils.Utils
+import com.icapps.background_location_tracker.utils.NotificationUtil
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.embedding.engine.dart.DartExecutor
 import io.flutter.embedding.engine.plugins.shim.ShimPluginRegistry
@@ -26,8 +23,13 @@ class MethodCallHelper(private val ctx: Context) : MethodChannel.MethodCallHandl
 
     private var serviceConnection = LocationServiceConnection(this)
 
+    init {
+        Log.i(TAG, "YET ANOTHER METHOD CALL HELPER $this")
+    }
+
     fun handle(call: MethodCall, result: MethodChannel.Result) = when (call.method) {
         "initialize" -> initialize(ctx, call, result)
+        "isTracking" -> isTracking(ctx, call, result)
         "startTracking" -> startTracking(ctx, call, result)
         "stopTracking" -> stopTracking(ctx, call, result)
         else -> result.error("404", "${call.method} is not supported", null)
@@ -37,13 +39,15 @@ class MethodCallHelper(private val ctx: Context) : MethodChannel.MethodCallHandl
         val callbackHandleKey = "callbackHandle"
         if (!call.hasArgument(callbackHandleKey)) {
             result.error("404", "$callbackHandleKey not found, but required", null)
-            return;
+            return
         }
         val callbackDispatcherHandleKey = call.argument<Long>("callbackHandle")!!
         SharedPrefsUtil.saveCallbackDispatcherHandleKey(ctx, callbackDispatcherHandleKey)
-        serviceConnection.bound(ctx)
+//        serviceConnection.bound(ctx)
         result.success(true)
     }
+
+    private fun isTracking(ctx: Context, call: MethodCall, result: MethodChannel.Result) = result.success(SharedPrefsUtil.isTracking(ctx))
 
     private fun startTracking(ctx: Context, call: MethodCall, result: MethodChannel.Result) {
         serviceConnection.service?.startTracking()
@@ -59,33 +63,27 @@ class MethodCallHelper(private val ctx: Context) : MethodChannel.MethodCallHandl
 
     @OnLifecycleEvent(Lifecycle.Event.ON_START)
     fun onStart() {
-        Log.i(TAG, "onStart")
         serviceConnection.bound(ctx)
     }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_RESUME)
     fun onResume() {
-        Log.i(TAG, "onResume")
         serviceConnection.onResume(ctx)
     }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_PAUSE)
     fun onPause() {
-        Log.i(TAG, "onPause")
         serviceConnection.onPause(ctx)
     }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
     fun onStop() {
-        Log.i(TAG, "onStop")
         serviceConnection.onStop(ctx)
     }
 
     override fun onLocationUpdate(location: Location) = sendBackgroundLocation(location)
 
     private fun sendBackgroundLocation(location: Location) {
-        val text = "New location data => Send to dart: ${Utils.getLocationText(location)}"
-        Log.i(TAG, text)
         val engine = FlutterEngine(ctx)
         FlutterMain.ensureInitializationComplete(ctx, null)
 
@@ -108,5 +106,14 @@ class MethodCallHelper(private val ctx: Context) : MethodChannel.MethodCallHandl
     companion object {
         const val BACKGROUND_CHANNEL_NAME = "com.icapps.background_location_tracker/background_channel"
         private val TAG = MethodCallHelper::class.java.simpleName
+
+        private var sInstance: MethodCallHelper? = null
+
+        fun getInstance(ctx: Context): MethodCallHelper? {
+            if (sInstance == null) {
+                sInstance = MethodCallHelper(ctx)
+            }
+            return sInstance
+        }
     }
 }

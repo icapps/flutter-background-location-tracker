@@ -12,6 +12,8 @@ class BackgroundLocationTrackerManager {
 
   static Future<void> initialize(Function callback) => ForegroundChannel.initialize(callback, enableLogging: _enabledLogging);
 
+  static Future<bool> isTracking() async => ForegroundChannel.isTracking();
+
   static Future<void> startTracking() async => ForegroundChannel.startTracking(enableLogging: _enabledLogging);
 
   static Future<void> stopTracking() async => ForegroundChannel.stopTracking(enableLogging: _enabledLogging);

@@ -1,10 +1,6 @@
 package com.icapps.background_location_tracker.service
 
 import android.app.ActivityManager
-import android.app.Notification
-import android.app.NotificationChannel
-import android.app.NotificationManager
-import android.app.PendingIntent
 import android.app.Service
 import android.content.Context
 import android.content.Intent
@@ -12,21 +8,19 @@ import android.content.ServiceConnection
 import android.content.res.Configuration
 import android.location.Location
 import android.os.Binder
-import android.os.Build
 import android.os.Handler
 import android.os.HandlerThread
 import android.os.IBinder
 import android.os.Looper
 import android.util.Log
-import androidx.core.app.NotificationCompat
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
-import com.icapps.background_location_tracker.ext.getAppIcon
-import com.icapps.background_location_tracker.utils.Utils
+import com.icapps.background_location_tracker.utils.SharedPrefsUtil
+import com.icapps.background_location_tracker.utils.NotificationUtil
 
 class LocationUpdatesService : Service() {
     private val binder: IBinder = LocalBinder()
@@ -37,7 +31,6 @@ class LocationUpdatesService : Service() {
      * place.
      */
     private var changingConfiguration = false
-    private var notificationManager: NotificationManager? = null
 
     /**
      * Contains parameters used by [com.google.android.gms.location.FusedLocationProviderApi].
@@ -74,15 +67,7 @@ class LocationUpdatesService : Service() {
         val handlerThread = HandlerThread(TAG)
         handlerThread.start()
         serviceHandler = Handler(handlerThread.looper)
-        notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-
-        // Android O requires a Notification Channel.
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val channel = NotificationChannel(CHANNEL_ID, "Background Location Tracking", NotificationManager.IMPORTANCE_DEFAULT)
-
-            // Set the Notification Channel for the Notification Manager.
-            notificationManager!!.createNotificationChannel(channel)
-        }
+        NotificationUtil.createNotificationChannels(this, "Background Tracking")
     }
 
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
@@ -130,16 +115,11 @@ class LocationUpdatesService : Service() {
         // Called when the last client (MainActivity in case of this sample) unbinds from this
         // service. If this method is called due to a configuration change in MainActivity, we
         // do nothing. Otherwise, we make this service a foreground service.
-        if (!changingConfiguration && Utils.requestingLocationUpdates(this)) {
+        if (!changingConfiguration && SharedPrefsUtil.isTracking(this)) {
             Log.i(TAG, "Starting foreground service")
-            startForeground(NOTIFICATION_ID, notification)
+            NotificationUtil.startForeground(this, location)
         }
         return true // Ensures onRebind() is called when a client re-binds.
-    }
-
-    override fun unbindService(conn: ServiceConnection) {
-        Log.i(TAG, "Unbind")
-        super.unbindService(conn)
     }
 
     override fun onDestroy() {
@@ -152,14 +132,13 @@ class LocationUpdatesService : Service() {
      * [SecurityException].
      */
     fun startTracking() {
-        if (isTracking) return
         Log.i(TAG, "Requesting location updates")
-        Utils.setRequestingLocationUpdates(this, true)
+        SharedPrefsUtil.saveIsTracking(this, true)
         startService(Intent(applicationContext, LocationUpdatesService::class.java))
         try {
             fusedLocationClient?.requestLocationUpdates(locationRequest, locationCallback, Looper.myLooper())
         } catch (unlikely: SecurityException) {
-            Utils.setRequestingLocationUpdates(this, false)
+            SharedPrefsUtil.saveIsTracking(this, false)
             Log.e(TAG, "Lost location permission. Could not request updates. $unlikely")
         }
     }
@@ -169,48 +148,16 @@ class LocationUpdatesService : Service() {
      * [SecurityException].
      */
     fun stopTracking() {
-        if (!isTracking) return
         Log.i(TAG, "Removing location updates")
         try {
             fusedLocationClient?.removeLocationUpdates(locationCallback)
-            Utils.setRequestingLocationUpdates(this, false)
+            SharedPrefsUtil.saveIsTracking(this, false)
             stopSelf()
         } catch (unlikely: SecurityException) {
-            Utils.setRequestingLocationUpdates(this, true)
+            SharedPrefsUtil.saveIsTracking(this, true)
             Log.e(TAG, "Lost location permission. Could not remove updates. $unlikely")
         }
     }
-
-    /**
-     * Returns the [NotificationCompat] used as part of the foreground service.
-     */
-    private val notification: Notification
-        get() {
-            val intent = Intent(this, LocationUpdatesService::class.java)
-            val text = Utils.getLocationText(location)
-
-            // Extra to help us figure out if we arrived in onStartCommand via the notification or not.
-            intent.putExtra(EXTRA_STARTED_FROM_NOTIFICATION, true)
-
-            // The PendingIntent that leads to a call to onStartCommand() in this service.
-            val servicePendingIntent = PendingIntent.getService(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT)
-
-            // The PendingIntent to launch activity.
-            val activityPendingIntent = PendingIntent.getActivity(this, 0, packageManager.getLaunchIntentForPackage(packageName), 0)
-
-            val builder = NotificationCompat.Builder(this, CHANNEL_ID)
-                    .setContentText(text)
-                    .setContentTitle(Utils.getLocationTitle(this))
-                    .addAction(0, "Launch app",
-                            activityPendingIntent)
-                    .addAction(0, "Remove location", servicePendingIntent)
-                    .setOngoing(true)
-                    .setPriority(NotificationCompat.PRIORITY_LOW)
-                    .setSmallIcon(applicationContext.getAppIcon())
-                    .setTicker(text)
-                    .setWhen(System.currentTimeMillis())
-            return builder.build()
-        }
 
     private fun getLastLocation() {
         try {
@@ -238,7 +185,7 @@ class LocationUpdatesService : Service() {
         // Update notification content if running as a foreground service.
         if (serviceIsRunningInForeground(this)) {
             Log.i(TAG, "serviceIsRunningInForeground so we update the notification")
-            notificationManager!!.notify(NOTIFICATION_ID, notification)
+            NotificationUtil.showNotification(this, location)
         }
     }
 
@@ -285,13 +232,9 @@ class LocationUpdatesService : Service() {
         private const val PACKAGE_NAME = "com.icapps.background_location_tracker"
         private val TAG = LocationUpdatesService::class.java.simpleName
 
-        /**
-         * The name of the channel for notifications.
-         */
-        private const val CHANNEL_ID = "background_tracking"
         const val ACTION_BROADCAST = "$PACKAGE_NAME.broadcast"
         const val EXTRA_LOCATION = "$PACKAGE_NAME.location"
-        private const val EXTRA_STARTED_FROM_NOTIFICATION = "$PACKAGE_NAME.started_from_notification"
+        const val EXTRA_STARTED_FROM_NOTIFICATION = "$PACKAGE_NAME.started_from_notification"
 
         /**
          * The desired interval for location updates. Inexact. Updates may be more or less frequent.
@@ -303,12 +246,5 @@ class LocationUpdatesService : Service() {
          * than this value.
          */
         private const val FASTEST_UPDATE_INTERVAL_IN_MILLISECONDS = UPDATE_INTERVAL_IN_MILLISECONDS / 2
-
-        /**
-         * The identifier for the notification displayed for the foreground service.
-         */
-        private const val NOTIFICATION_ID = 12345678
-
-        private var isTracking = false
     }
 }

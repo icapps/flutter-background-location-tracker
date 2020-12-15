@@ -26,6 +26,12 @@ class _MyAppState extends State<MyApp> {
   var isTracking = false;
 
   @override
+  void initState() {
+    super.initState();
+    _getTrackingStatus();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return MaterialApp(
       home: Scaffold(
@@ -34,24 +40,26 @@ class _MyAppState extends State<MyApp> {
         ),
         body: Column(
           children: [
-            MaterialButton(
-              child: const Text('Start Tracking'),
-              onPressed: isTracking
-                  ? null
-                  : () {
-                      BackgroundLocationTrackerManager.startTracking();
-                      setState(() => isTracking = true);
-                    },
-            ),
-            MaterialButton(
-              child: const Text('Stop Tracking'),
-              onPressed: isTracking
-                  ? () {
-                      BackgroundLocationTrackerManager.stopTracking();
-                      setState(() => isTracking = false);
-                    }
-                  : null,
-            ),
+            if (isTracking != null) ...[
+              MaterialButton(
+                child: const Text('Start Tracking'),
+                onPressed: isTracking
+                    ? null
+                    : () {
+                        BackgroundLocationTrackerManager.startTracking();
+                        setState(() => isTracking = true);
+                      },
+              ),
+              MaterialButton(
+                child: const Text('Stop Tracking'),
+                onPressed: isTracking
+                    ? () {
+                        BackgroundLocationTrackerManager.stopTracking();
+                        setState(() => isTracking = false);
+                      }
+                    : null,
+              ),
+            ],
             Expanded(
               child: Center(
                 child: StreamBuilder<List<BackgroundLocationUpdateData>>(
@@ -75,6 +83,11 @@ class _MyAppState extends State<MyApp> {
         ),
       ),
     );
+  }
+
+  Future<void> _getTrackingStatus() async {
+    isTracking = await BackgroundLocationTrackerManager.isTracking();
+    setState(() {});
   }
 }
 
