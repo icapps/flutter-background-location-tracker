@@ -109,5 +109,4 @@ class MethodCallHelper(private val ctx: Context) : MethodChannel.MethodCallHandl
         const val BACKGROUND_CHANNEL_NAME = "com.icapps.background_location_tracker/background_channel"
         private val TAG = MethodCallHelper::class.java.simpleName
     }
-
 }

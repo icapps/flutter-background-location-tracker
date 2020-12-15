@@ -53,7 +53,7 @@ class BackgroundLocationTrackerPlugin : FlutterPlugin, MethodCallHandler, Activi
             val channel = MethodChannel(messenger, "com.icapps.background_location_tracker/foreground_channel")
             channel.setMethodCallHandler(BackgroundLocationTrackerPlugin().apply {
                 if (methodCallHelper == null) {
-                    methodCallHelper = MethodCallHelper(ctx)
+                    methodCallHelper = MethodCallHelper(ctx.applicationContext)
                 }
                 methodCallHelper?.let {
                     Log.i(TAG, "Add in on register $methodCallHelper to $lifecycle")

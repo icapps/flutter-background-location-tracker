@@ -61,6 +61,7 @@ class LocationUpdatesService : Service() {
     private var location: Location? = null
 
     override fun onCreate() {
+        Log.i(TAG, "ON CREATE SERVICE")
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
         locationCallback = object : LocationCallback() {
             override fun onLocationResult(locationResult: LocationResult) {
@@ -151,6 +152,7 @@ class LocationUpdatesService : Service() {
      * [SecurityException].
      */
     fun startTracking() {
+        if (isTracking) return
         Log.i(TAG, "Requesting location updates")
         Utils.setRequestingLocationUpdates(this, true)
         startService(Intent(applicationContext, LocationUpdatesService::class.java))
@@ -167,6 +169,7 @@ class LocationUpdatesService : Service() {
      * [SecurityException].
      */
     fun stopTracking() {
+        if (!isTracking) return
         Log.i(TAG, "Removing location updates")
         try {
             fusedLocationClient?.removeLocationUpdates(locationCallback)
@@ -305,5 +308,7 @@ class LocationUpdatesService : Service() {
          * The identifier for the notification displayed for the foreground service.
          */
         private const val NOTIFICATION_ID = 12345678
+
+        private var isTracking = false
     }
 }
