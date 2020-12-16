@@ -75,6 +75,9 @@
 !**/ios/**/default.perspectivev3
 !/packages/flutter_tools/test/data/dart_dependencies_test/**/.packages
 
+# Test Helper
+test/coverage_helper_test.dart
+
 # Test Coverage
 /coverage/lcov.info
 /coverage/coverage.xml
