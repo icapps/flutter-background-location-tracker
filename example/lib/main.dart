@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:background_location_tracker/background_location_tracker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 void _backgroundCallback() => BackgroundLocationTrackerManager.handleBackgroundUpdated((data) => Repo().update(data));
 
@@ -36,6 +37,11 @@ class _MyAppState extends State<MyApp> {
         ),
         body: Column(
           children: [
+
+            MaterialButton(
+              child: const Text('Request location permission'),
+              onPressed: _requestLocationPermission,
+            ),
             if (isTracking != null) ...[
               MaterialButton(
                 child: const Text('Start Tracking'),
@@ -84,6 +90,15 @@ class _MyAppState extends State<MyApp> {
   Future<void> _getTrackingStatus() async {
     isTracking = await BackgroundLocationTrackerManager.isTracking();
     setState(() {});
+  }
+
+  Future<void> _requestLocationPermission() async{
+    final result = await Permission.locationAlways.request();
+    if(result == PermissionStatus.granted){
+      print('GRANTED');
+    }else{
+      print('NOT GRANTED');
+    }
   }
 }
 

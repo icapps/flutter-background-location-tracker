@@ -18,7 +18,7 @@ class BackgroundChannel {
             break;
         }
       })
-      ..invokeListMethod<void>(
+      ..invokeMethod<void>(
         'initialized',
       );
   }
