@@ -1,11 +1,15 @@
 import 'dart:io';
 
-const packageName = 'flutter_template';
+const packageName = 'background_location_tracker';
 
 void main() {
   Logger.debug('====');
   Logger.debug('First create a file with all other files imported so flutter test coverage uses all files');
   Logger.debug('====');
+  final testDir = Directory('test');
+  if (!testDir.existsSync()) {
+    testDir.createSync(recursive: true);
+  }
 
   final imports = Directory('lib').listSync(recursive: true).where((element) {
     if (Directory(element.path).existsSync()) return false;
