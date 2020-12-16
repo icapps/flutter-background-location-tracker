@@ -21,7 +21,7 @@ class ForegroundChannel {
     );
   }
 
-  static Future<bool> isTracking() => _foregroundChannel.invokeMethod<bool>('isTracking');
+  static Future<bool> isTracking() => _foregroundChannel.invokeMethod('isTracking');
 
   static Future<void> startTracking() => _foregroundChannel.invokeMethod('startTracking');
 
