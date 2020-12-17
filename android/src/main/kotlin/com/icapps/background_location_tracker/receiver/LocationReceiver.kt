@@ -6,7 +6,7 @@ import android.content.Intent
 import android.location.Location
 import com.icapps.background_location_tracker.service.LocationUpdatesService
 
-abstract class LocationReceiver : BroadcastReceiver() {
+internal abstract class LocationReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context?, intent: Intent?) {
         intent ?: return
         val location = intent.getParcelableExtra<Location>(LocationUpdatesService.EXTRA_LOCATION)

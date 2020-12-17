@@ -17,6 +17,10 @@ class ForegroundChannel {
         'callback_handle': handle,
         'logging_enabled': config.loggingEnabled,
         'android_config_channel_name': config.androidConfig.channelName,
+        'android_config_notification_body': config.androidConfig.notificationBody,
+        'android_config_enable_notification_location_updates': config.androidConfig.enableNotificationLocationUpdates,
+        'android_config_cancel_tracking_action_text': config.androidConfig.cancelTrackingActionText,
+        'android_config_enable_cancel_tracking_action': config.androidConfig.enableCancelTrackingAction,
       },
     );
   }

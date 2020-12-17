@@ -2,8 +2,8 @@ package com.icapps.background_location_tracker.flutter
 
 import android.content.Context
 import android.location.Location
-import android.util.Log
 import com.icapps.background_location_tracker.BackgroundLocationTrackerPlugin
+import com.icapps.background_location_tracker.utils.Logger
 import com.icapps.background_location_tracker.utils.SharedPrefsUtil
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.embedding.engine.dart.DartExecutor
@@ -13,11 +13,11 @@ import io.flutter.plugin.common.MethodChannel
 import io.flutter.view.FlutterCallbackInformation
 import io.flutter.view.FlutterMain
 
-object FlutterBackgroundManager {
+internal object FlutterBackgroundManager {
     private const val BACKGROUND_CHANNEL_NAME = "com.icapps.background_location_tracker/background_channel"
 
     fun sendLocation(ctx: Context, location: Location) {
-        Log.i("BackgroundManager", "Location: ${location.latitude}: ${location.longitude}")
+        Logger.debug("BackgroundManager", "Location: ${location.latitude}: ${location.longitude}")
         val engine = FlutterEngine(ctx)
         FlutterMain.ensureInitializationComplete(ctx, null)
 

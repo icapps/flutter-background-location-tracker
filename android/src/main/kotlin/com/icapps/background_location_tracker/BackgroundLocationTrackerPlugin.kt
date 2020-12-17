@@ -1,12 +1,12 @@
 package com.icapps.background_location_tracker
 
 import android.content.Context
-import android.util.Log
 import androidx.lifecycle.Lifecycle
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.embedding.engine.plugins.activity.ActivityAware
 import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding
 import com.icapps.background_location_tracker.flutter.FlutterLifecycleAdapter
+import com.icapps.background_location_tracker.utils.Logger
 import io.flutter.plugin.common.BinaryMessenger
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
@@ -30,7 +30,6 @@ class BackgroundLocationTrackerPlugin : FlutterPlugin, MethodCallHandler, Activi
     override fun onAttachedToActivity(binding: ActivityPluginBinding) {
         lifecycle = FlutterLifecycleAdapter.getActivityLifecycle(binding)
         if (methodCallHelper == null) {
-            Log.i(TAG, "New Method Call Helper $this")
             methodCallHelper = MethodCallHelper.getInstance(binding.activity.applicationContext)
         }
         methodCallHelper?.let {
@@ -46,20 +45,16 @@ class BackgroundLocationTrackerPlugin : FlutterPlugin, MethodCallHandler, Activi
     override fun onDetachedFromActivityForConfigChanges() {}
 
     companion object {
-        private val TAG = BackgroundLocationTrackerPlugin::class.java.simpleName
         var pluginRegistryCallback: PluginRegistry.PluginRegistrantCallback? = null
 
         @JvmStatic
         private fun registerBackgroundLocationManager(messenger: BinaryMessenger, ctx: Context) {
             val channel = MethodChannel(messenger, "com.icapps.background_location_tracker/foreground_channel")
             channel.setMethodCallHandler(BackgroundLocationTrackerPlugin().apply {
-                Log.i(TAG, "Creating the plugin $this")
                 if (methodCallHelper == null) {
-                    Log.i(TAG, "New Method Call Helper when creating the plugin $this")
                     methodCallHelper = MethodCallHelper.getInstance(ctx)
                 }
                 methodCallHelper?.let {
-                    Log.i(TAG, "Add in on register $methodCallHelper to $lifecycle")
                     lifecycle?.removeObserver(it)
                     lifecycle?.addObserver(it)
                 }
