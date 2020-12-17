@@ -37,7 +37,6 @@ class _MyAppState extends State<MyApp> {
         ),
         body: Column(
           children: [
-
             MaterialButton(
               child: const Text('Request location permission'),
               onPressed: _requestLocationPermission,
@@ -92,11 +91,11 @@ class _MyAppState extends State<MyApp> {
     setState(() {});
   }
 
-  Future<void> _requestLocationPermission() async{
+  Future<void> _requestLocationPermission() async {
     final result = await Permission.locationAlways.request();
-    if(result == PermissionStatus.granted){
+    if (result == PermissionStatus.granted) {
       print('GRANTED'); // ignore: avoid_print
-    }else{
+    } else {
       print('NOT GRANTED'); // ignore: avoid_print
     }
   }

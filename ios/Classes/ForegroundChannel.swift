@@ -16,7 +16,7 @@ fileprivate enum ForegroundMethods: String {
     case stopTracking = "stopTracking"
 }
 
-public class ForegroundChannel {
+public class ForegroundChannel : NSObject {
     private static let FOREGROUND_CHANNEL_NAME = "com.icapps.background_location_tracker/foreground_channel"
     
     private let locationManager = LocationManager.shared()
@@ -25,11 +25,9 @@ public class ForegroundChannel {
     
     private let userDefaults = UserDefaults.standard
     
-//    public static func register(with registrar: FlutterPluginRegistrar) {
-//        let channel = FlutterMethodChannel(name: FOREGROUND_CHANNEL_NAME, binaryMessenger: registrar.messenger())
-//        let instance = ForegroundChannel()
-//        registrar.addMethodCallDelegate(instance, channel: channel)
-//    }
+    public static func getMethodChannel(with registrar: FlutterPluginRegistrar) -> FlutterMethodChannel {
+        return FlutterMethodChannel(name: FOREGROUND_CHANNEL_NAME, binaryMessenger: registrar.messenger())
+    }
     
     public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         locationManager.delegate = self
