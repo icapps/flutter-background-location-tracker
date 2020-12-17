@@ -67,12 +67,16 @@ class LocationUpdatesService : Service() {
         val handlerThread = HandlerThread(TAG)
         handlerThread.start()
         serviceHandler = Handler(handlerThread.looper)
+
+        if (SharedPrefsUtil.isTracking(this)) {
+            startTracking()
+        }
     }
 
-    override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         Log.i(TAG, "Service started")
-        val startedFromNotification = intent.getBooleanExtra(EXTRA_STARTED_FROM_NOTIFICATION,
-                false)
+        val startedFromNotification = intent?.getBooleanExtra(EXTRA_STARTED_FROM_NOTIFICATION,
+                false) ?: false
 
         // We got here because the user decided to remove location updates from the notification.
         if (startedFromNotification) {
@@ -80,7 +84,7 @@ class LocationUpdatesService : Service() {
             stopSelf()
         }
         // Tells the system to not try to recreate the service after it has been killed.
-        return START_NOT_STICKY
+        return START_STICKY
     }
 
     override fun onConfigurationChanged(newConfig: Configuration) {
