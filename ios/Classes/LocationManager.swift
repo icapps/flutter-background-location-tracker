@@ -6,3 +6,21 @@
 //
 
 import Foundation
+import CoreLocation
+
+class LocationManager {
+    
+    private static var sharedLocationManager: CLLocationManager = {
+        let manager = CLLocationManager()
+        manager.activityType = .automotiveNavigation
+//        manager.desiredAccuracy = kCLLocationAccuracyBest
+        if #available(iOS 9.0, *) {
+            manager.allowsBackgroundLocationUpdates = true
+        }
+        return manager
+    }()
+    
+    class func shared() -> CLLocationManager {
+        return sharedLocationManager
+    }
+}
