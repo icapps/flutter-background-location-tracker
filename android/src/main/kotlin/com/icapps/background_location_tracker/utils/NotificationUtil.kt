@@ -40,7 +40,7 @@ internal object NotificationUtil {
     /**
      * Returns the [NotificationCompat] used as part of the foreground service.
      */
-    fun getNotification(context: Context, location: Location?): Notification {
+    private fun getNotification(context: Context, location: Location?): Notification {
         val intent = Intent(context, LocationUpdatesService::class.java)
         val text = getLocationText(location)
 
@@ -55,12 +55,12 @@ internal object NotificationUtil {
 
         val builder = NotificationCompat.Builder(context, CHANNEL_ID)
                 .setContentText(text)
-                .setContentTitle(NotificationUtil.getLocationTitle(context))
+                .setContentTitle(getLocationTitle(context))
                 .addAction(0, "Launch app",
                         activityPendingIntent)
                 .addAction(0, "Remove location", servicePendingIntent)
                 .setOngoing(true)
-                .setPriority(NotificationCompat.PRIORITY_LOW)
+                .setPriority(NotificationCompat.PRIORITY_MAX)
                 .setSmallIcon(context.getAppIcon())
                 .setTicker(text)
                 .setWhen(System.currentTimeMillis())
