@@ -70,7 +70,7 @@ extension SwiftBackgroundLocationTrackerPlugin: CLLocationManagerDelegate {
                 let locationData :[String: Any] = [
                     "lat": location.coordinate.latitude,
                     "lon": location.coordinate.longitude,
-                    "logging_enabled": true, //get from user defaults
+                    "logging_enabled": SharedPrefsUtil.isLoggingEnabled(),
                 ]
                 backgroundMethodChannel?.invokeMethod(BackgroundMethods.onLocationUpdate.rawValue, arguments: locationData)
                 result(true)
