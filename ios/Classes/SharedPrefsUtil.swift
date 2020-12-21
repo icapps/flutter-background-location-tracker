@@ -24,7 +24,7 @@ struct SharedPrefsUtil {
     }
     
     static func hasCallbackHandle() -> Bool {
-        getValue(for: SharedPrefsUtil.KEY_CALLBACK_HANDLER) ?? false
+        return getValue(for: SharedPrefsUtil.KEY_CALLBACK_HANDLER) ?? false
     }
     
     static func saveIsTracking(_ isTracking: Bool) {

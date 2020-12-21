@@ -17,7 +17,7 @@ public class SwiftBackgroundLocationTrackerPlugin: FlutterPluginAppLifeCycleDele
 }
 
 extension SwiftBackgroundLocationTrackerPlugin: FlutterPlugin {
-
+    
     @objc
     public static func setPluginRegistrantCallback(_ callback: @escaping FlutterPluginRegistrantCallback) {
         flutterPluginRegistrantCallback = callback
@@ -47,10 +47,11 @@ extension SwiftBackgroundLocationTrackerPlugin: CLLocationManagerDelegate {
     
     public func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         guard let location = locations.last else {
-            print("No location ...")
-            return }
+            CustomLogger.log(message: "No location ...")
+            return
+        }
         
-        print("NEW LOCATION: \(location.coordinate.latitude): \(location.coordinate.longitude)")
+        CustomLogger.log(message: "NEW LOCATION: \(location.coordinate.latitude): \(location.coordinate.longitude)")
         
         guard let callbackHandle = SharedPrefsUtil.getCallbackHandle(),
               let flutterCallbackInformation = FlutterCallbackCache.lookupCallbackInformation(callbackHandle)
