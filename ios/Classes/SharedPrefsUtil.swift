@@ -17,7 +17,7 @@ struct SharedPrefsUtil {
     
     // KeyChainWrapper gebruiken
     
-    static func saveCallBackDispatcherHandleKey(callBackHandle: Int64) {
+    static func saveCallBackDispatcherHandleKey(callBackHandle: Int64?) {
         store(callBackHandle, key: SharedPrefsUtil.KEY_CALLBACK_HANDLER)
     }
     

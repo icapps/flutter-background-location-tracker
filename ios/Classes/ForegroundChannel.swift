@@ -51,9 +51,8 @@ public class ForegroundChannel : NSObject {
         let callBackHandleKey = "callback_handle"
         let channelNameKey = "iOS_config_channel_name"
         let keys = [callBackHandleKey, channelNameKey]
-//        if !call.method
-//        let callbackDispatcherHandleKey = call.
-//        userDefaults.  
+        let callbackDispatcherHandleKey = call.arguments
+        SharedPrefsUtil.saveCallBackDispatcherHandleKey(callBackHandle: callbackDispatcherHandleKey as? Int64)
         result(true)
     }
     
@@ -67,7 +66,11 @@ public class ForegroundChannel : NSObject {
     }
     
     private func isTracking(_ result: @escaping FlutterResult) {
-        guard let _ = locationManager.location else { return result(false) }
+        guard let _ = locationManager.location else {
+            SharedPrefsUtil.saveIsTracking(false)
+            return result(false)
+        }
+        SharedPrefsUtil.saveIsTracking(true)
         return result(true)
     }
 }
