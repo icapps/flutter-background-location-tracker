@@ -5,10 +5,11 @@ import 'package:flutter/widgets.dart';
 
 class BackgroundChannel {
   static const _BACKGROUND_CHANNEL_NAME = 'com.icapps.background_location_tracker/background_channel';
+  static const _backgroundChannel = MethodChannel(_BACKGROUND_CHANNEL_NAME);
 
   static void handleBackgroundUpdated(LocationUpdateCallback callback, {bool enableLogging = false}) {
     WidgetsFlutterBinding.ensureInitialized();
-    const MethodChannel(_BACKGROUND_CHANNEL_NAME)
+    _backgroundChannel
       ..setMethodCallHandler((call) async {
         switch (call.method) {
           case 'onLocationUpdate':
