@@ -84,7 +84,7 @@ internal class LocationUpdatesService : Service() {
             stopTracking()
             stopSelf()
         }
-        // Tells the system to not try to recreate the service after it has been killed.
+        // Tells the system to try to recreate the service after it has been killed.
         return START_STICKY
     }
 
