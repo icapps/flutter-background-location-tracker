@@ -11,7 +11,6 @@ dependencies:
   background_location_tracker:
     path: ../
   cupertino_icons: ^1.0.0
-  flutter_local_notifications: ^3.0.2
   permission_handler: ^5.0.1+1
 
 dev_dependencies:
