@@ -22,6 +22,16 @@
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>Permission is used to get location updates of the user. In the background and foreground.</string>
+	<key>NSLocationAlwaysUsageDescription</key>
+	<string>Permission is used to get location updates of the user. In the background.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Permission is used to get location updates of the user.</string>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>location</string>
+	</array>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
 	<key>UIMainStoryboardFile</key>
