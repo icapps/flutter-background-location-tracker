@@ -17,6 +17,8 @@ fileprivate enum ForegroundMethods: String {
 }
 
 public class ForegroundChannel : NSObject {
+    
+    private var isTracking = false
     private static let FOREGROUND_CHANNEL_NAME = "com.icapps.background_location_tracker/foreground_channel"
     
     private let locationManager = LocationManager.shared()
@@ -52,25 +54,26 @@ public class ForegroundChannel : NSObject {
             return
         }
         SharedPrefsUtil.saveCallBackDispatcherHandleKey(callBackHandle: callbackDispatcherHandle as? Int64)
+        SharedPrefsUtil.saveIsTracking(isTracking)
         result(true)
     }
     
     private func startTracking(_ result: @escaping FlutterResult) {
         locationManager.startUpdatingLocation()
+        isTracking = true
+        SharedPrefsUtil.saveIsTracking(isTracking)
         result(true)
     }
     
     private func stopTracking(_ result: @escaping FlutterResult) {
         locationManager.stopUpdatingLocation()
+        isTracking = false
+        SharedPrefsUtil.saveIsTracking(isTracking)
         result(true)
     }
     
     private func isTracking(_ result: @escaping FlutterResult) {
-        guard let _ = locationManager.location else {
-            SharedPrefsUtil.saveIsTracking(false)
-            return result(false)
-        }
-        SharedPrefsUtil.saveIsTracking(true)
-        return result(true)
+        SharedPrefsUtil.saveIsTracking(isTracking)
+        return result(isTracking)
     }
 }

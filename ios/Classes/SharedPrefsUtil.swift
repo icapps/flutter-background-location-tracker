@@ -15,8 +15,6 @@ struct SharedPrefsUtil {
     
     private static let userDefaults = UserDefaults(suiteName: "\(SwiftBackgroundLocationTrackerPlugin.identifier).userDefaults")!
     
-    // KeyChainWrapper gebruiken
-    
     static func saveCallBackDispatcherHandleKey(callBackHandle: Int64?) {
         store(callBackHandle, key: SharedPrefsUtil.KEY_CALLBACK_HANDLER)
     }
