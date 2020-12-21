@@ -138,8 +138,22 @@ class Repo {
 
 Future<void> sendNotification(String body) async {
   print(body);
-  const settings = InitializationSettings(android: AndroidInitializationSettings('app_icon'), iOS: IOSInitializationSettings());
-  await FlutterLocalNotificationsPlugin().initialize(settings, onSelectNotification: (payload) async {});
+  print('SETUP SETTINGS');
+  final settings = InitializationSettings(
+    android: const AndroidInitializationSettings('app_icon'),
+    iOS: IOSInitializationSettings(
+      requestAlertPermission: true,
+      onDidReceiveLocalNotification: (id, title, subtitle, payload) async {},
+    ),
+  );
+  print('INITIALIZE');
+  try {
+    final bool = await FlutterLocalNotificationsPlugin().initialize(settings, onSelectNotification: (payload) async {});
+    print('REAULT: $bool');
+  } catch (e) {
+    print('WHAT IS GOING ON : $e');
+  }
+  print('SEND THIS DAMN MESSAGE');
   await FlutterLocalNotificationsPlugin().show(
     DateTime.now().hashCode,
     'Update received in Flutter',
@@ -153,6 +167,7 @@ Future<void> sendNotification(String body) async {
         priority: Priority.high,
         showWhen: false,
       ),
+      iOS: IOSNotificationDetails(),
     ),
   );
 }
