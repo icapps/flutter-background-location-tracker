@@ -138,7 +138,7 @@ class Repo {
 
 Future<void> sendNotification(String body) async {
   print(body);
-  const settings = InitializationSettings(android: AndroidInitializationSettings('app_icon'));
+  const settings = InitializationSettings(android: AndroidInitializationSettings('app_icon'), iOS: IOSInitializationSettings());
   await FlutterLocalNotificationsPlugin().initialize(settings, onSelectNotification: (payload) async {});
   await FlutterLocalNotificationsPlugin().show(
     DateTime.now().hashCode,

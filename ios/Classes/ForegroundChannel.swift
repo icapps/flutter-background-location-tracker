@@ -21,8 +21,6 @@ public class ForegroundChannel : NSObject {
     
     private let locationManager = LocationManager.shared()
     
-    private var userLoc: CLLocation?
-    
     private let userDefaults = UserDefaults.standard
     
     public static func getMethodChannel(with registrar: FlutterPluginRegistrar) -> FlutterMethodChannel {
@@ -30,7 +28,6 @@ public class ForegroundChannel : NSObject {
     }
     
     public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
-        locationManager.delegate = self
         switch call.method {
         case ForegroundMethods.initialize.rawValue:
             initialize(call: call, result: result)
@@ -75,15 +72,5 @@ public class ForegroundChannel : NSObject {
         }
         SharedPrefsUtil.saveIsTracking(true)
         return result(true)
-    }
-}
-
-extension ForegroundChannel: CLLocationManagerDelegate {
-    public func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
-        if let location = locations.last {
-            userLoc = location
-        } else {
-            userLoc = nil
-        }
     }
 }
