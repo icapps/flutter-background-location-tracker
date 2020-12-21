@@ -12,6 +12,8 @@ public class SwiftBackgroundLocationTrackerPlugin: FlutterPluginAppLifeCycleDele
     
     private static var flutterPluginRegistrantCallback: FlutterPluginRegistrantCallback?
     
+    private let locationManager = LocationManager.shared()
+    
 }
 
 extension SwiftBackgroundLocationTrackerPlugin: FlutterPlugin {
@@ -30,6 +32,7 @@ extension SwiftBackgroundLocationTrackerPlugin: FlutterPlugin {
     }
     
     public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
+        locationManager.delegate = self
         SwiftBackgroundLocationTrackerPlugin.foregroundChannel?.handle(call, result: result)
     }
 }
@@ -43,7 +46,9 @@ extension SwiftBackgroundLocationTrackerPlugin: CLLocationManagerDelegate {
     private static let BACKGROUND_CHANNEL_NAME = "com.icapps.background_location_tracker/background_channel"
     
     public func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
-        guard let location = locations.last else { return }
+        guard let location = locations.last else {
+            print("No location ...")
+            return }
         
         print("NEW LOCATION: \(location.coordinate.latitude): \(location.coordinate.longitude)")
         
