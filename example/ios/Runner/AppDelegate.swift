@@ -6,9 +6,6 @@ import Flutter
     override func application(_ application: UIApplication,didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         GeneratedPluginRegistrant.register(with: self)
         
-        BackgroundLocationTrackingPlugin.register(with: registrar(forPlugin: "BackgroundLocationTrackingPlugin"))
-        
-        
         return super.application(application, didFinishLaunchingWithOptions: launchOptions)
     }
 }

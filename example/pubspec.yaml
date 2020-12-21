@@ -10,7 +10,6 @@ dependencies:
     sdk: flutter
   background_location_tracker:
     path: ../
-  flutter_local_notifications: ^3.0.2
   permission_handler: ^5.0.1+1
 
 dev_dependencies:
