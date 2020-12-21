@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:background_location_tracker/background_location_tracker.dart';
 import 'package:flutter/material.dart';
@@ -41,6 +42,13 @@ class _MyAppState extends State<MyApp> {
               child: const Text('Request location permission'),
               onPressed: _requestLocationPermission,
             ),
+            if (Platform.isIOS) ...[
+              Text('Notification Permissions is only needed for this demo app'),
+              MaterialButton(
+                child: const Text('Request notification permission'),
+                onPressed: _requestNotificationPermission,
+              ),
+            ],
             if (isTracking != null) ...[
               MaterialButton(
                 child: const Text('Start Tracking'),
@@ -99,6 +107,15 @@ class _MyAppState extends State<MyApp> {
       print('NOT GRANTED'); // ignore: avoid_print
     }
   }
+
+  Future<void> _requestNotificationPermission() async {
+    final result = await Permission.notification.request();
+    if (result == PermissionStatus.granted) {
+      print('GRANTED notification permissions'); // ignore: avoid_print
+    } else {
+      print('NOT GRANTED notification permissions'); // ignore: avoid_print
+    }
+  }
 }
 
 class Repo {
@@ -120,6 +137,7 @@ class Repo {
 }
 
 Future<void> sendNotification(String body) async {
+  print(body);
   const settings = InitializationSettings(android: AndroidInitializationSettings('app_icon'));
   await FlutterLocalNotificationsPlugin().initialize(settings, onSelectNotification: (payload) async {});
   await FlutterLocalNotificationsPlugin().show(

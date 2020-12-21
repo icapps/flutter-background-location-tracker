@@ -64,7 +64,8 @@ public class ForegroundChannel : NSObject {
     }
     
     private func stopTracking(_ result: @escaping FlutterResult) {
-        result(locationManager.stopUpdatingLocation())
+        locationManager.stopUpdatingLocation()
+        result(true)
     }
     
     private func isTracking(_ result: @escaping FlutterResult) {
