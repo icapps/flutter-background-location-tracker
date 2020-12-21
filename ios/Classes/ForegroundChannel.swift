@@ -48,11 +48,14 @@ public class ForegroundChannel : NSObject {
     
     private func initialize(call: FlutterMethodCall, result: @escaping FlutterResult ) {
         let callBackHandleKey = "callback_handle"
+        let loggingEnabledKey = "logging_enabled"
         let map = call.arguments as? [String: Any]
         guard let callbackDispatcherHandle = map?[callBackHandleKey] else {
             result(false)
             return
         }
+        let loggingEnabled: Bool = map?[loggingEnabledKey] as? Bool ?? false
+        SharedPrefsUtil.saveLoggingEnabled(loggingEnabled)
         SharedPrefsUtil.saveCallBackDispatcherHandleKey(callBackHandle: callbackDispatcherHandle as? Int64)
         SharedPrefsUtil.saveIsTracking(isTracking)
         result(true)
