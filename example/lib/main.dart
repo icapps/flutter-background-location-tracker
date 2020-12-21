@@ -8,7 +8,14 @@ void _backgroundCallback() => BackgroundLocationTrackerManager.handleBackgroundU
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await BackgroundLocationTrackerManager.initialize(_backgroundCallback);
+  await BackgroundLocationTrackerManager.initialize(
+    _backgroundCallback,
+    config: const BackgroundLocationTrackerConfig(
+      androidConfig: AndroidConfig(
+        enableCancelTrackingAction: false,
+      ),
+    ),
+  );
   runApp(MyApp());
 }
 
@@ -91,5 +98,5 @@ class Repo {
 
   factory Repo() => _instance ??= Repo._();
 
-  void update(BackgroundLocationUpdateData data) => print('Location Update: Lat: ${data.lat} Lon: ${data.lon}');
+  void update(BackgroundLocationUpdateData data) => print('Location Update: Lat: ${data.lat} Lon: ${data.lon}'); // ignore: avoid_print
 }

@@ -4,7 +4,7 @@ import androidx.lifecycle.Lifecycle
 import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding
 import io.flutter.embedding.engine.plugins.lifecycle.HiddenLifecycleReference
 
-object FlutterLifecycleAdapter {
+internal object FlutterLifecycleAdapter {
     private const val TAG = "FlutterLifecycleAdapter"
 
     fun getActivityLifecycle(activityPluginBinding: ActivityPluginBinding): Lifecycle {

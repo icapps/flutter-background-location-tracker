@@ -19,10 +19,11 @@ import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
 import com.icapps.background_location_tracker.flutter.FlutterBackgroundManager
+import com.icapps.background_location_tracker.utils.Logger
 import com.icapps.background_location_tracker.utils.SharedPrefsUtil
 import com.icapps.background_location_tracker.utils.NotificationUtil
 
-class LocationUpdatesService : Service() {
+internal class LocationUpdatesService : Service() {
     private val binder: IBinder = LocalBinder()
 
     /**
@@ -54,7 +55,7 @@ class LocationUpdatesService : Service() {
     private var location: Location? = null
 
     override fun onCreate() {
-        Log.i(TAG, "ON CREATE SERVICE")
+        Logger.debug(TAG, "ON CREATE SERVICE")
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
         locationCallback = object : LocationCallback() {
             override fun onLocationResult(locationResult: LocationResult) {
@@ -67,20 +68,24 @@ class LocationUpdatesService : Service() {
         val handlerThread = HandlerThread(TAG)
         handlerThread.start()
         serviceHandler = Handler(handlerThread.looper)
+
+        if (SharedPrefsUtil.isTracking(this)) {
+            startTracking()
+        }
     }
 
-    override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
-        Log.i(TAG, "Service started")
-        val startedFromNotification = intent.getBooleanExtra(EXTRA_STARTED_FROM_NOTIFICATION,
-                false)
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        Logger.debug(TAG, "Service started")
+        val startedFromNotification = intent?.getBooleanExtra(EXTRA_STARTED_FROM_NOTIFICATION,
+                false) ?: false
 
         // We got here because the user decided to remove location updates from the notification.
         if (startedFromNotification) {
             stopTracking()
             stopSelf()
         }
-        // Tells the system to not try to recreate the service after it has been killed.
-        return START_NOT_STICKY
+        // Tells the system to try to recreate the service after it has been killed.
+        return START_STICKY
     }
 
     override fun onConfigurationChanged(newConfig: Configuration) {
@@ -92,7 +97,7 @@ class LocationUpdatesService : Service() {
         // Called when a client (MainActivity in case of this sample) comes to the foreground
         // and binds with this service. The service should cease to be a foreground service
         // when that happens.
-        Log.i(TAG, "in onBind()")
+        Logger.debug(TAG, "OnBind")
         stopForeground(true)
         changingConfiguration = false
         return binder
@@ -102,27 +107,27 @@ class LocationUpdatesService : Service() {
         // Called when a client (MainActivity in case of this sample) returns to the foreground
         // and binds once again with this service. The service should cease to be a foreground
         // service when that happens.
-        Log.i(TAG, "in onRebind()")
+        Logger.debug(TAG, "OnRebind")
         stopForeground(true)
         changingConfiguration = false
         super.onRebind(intent)
     }
 
     override fun onUnbind(intent: Intent): Boolean {
-        Log.i(TAG, "Last client unbound from service")
+        Logger.debug(TAG, "Last client unbound from service")
 
         // Called when the last client (MainActivity in case of this sample) unbinds from this
         // service. If this method is called due to a configuration change in MainActivity, we
         // do nothing. Otherwise, we make this service a foreground service.
         if (!changingConfiguration && SharedPrefsUtil.isTracking(this)) {
-            Log.i(TAG, "Starting foreground service")
+            Logger.debug(TAG, "Starting foreground service")
             NotificationUtil.startForeground(this, location)
         }
         return true // Ensures onRebind() is called when a client re-binds.
     }
 
     override fun onDestroy() {
-        Log.i(TAG, "Destroy")
+        Logger.debug(TAG, "Destroy")
         serviceHandler!!.removeCallbacksAndMessages(null)
     }
 
@@ -131,14 +136,14 @@ class LocationUpdatesService : Service() {
      * [SecurityException].
      */
     fun startTracking() {
-        Log.i(TAG, "Requesting location updates")
+        Logger.debug(TAG, "Requesting location updates")
         SharedPrefsUtil.saveIsTracking(this, true)
         startService(Intent(applicationContext, LocationUpdatesService::class.java))
         try {
             fusedLocationClient?.requestLocationUpdates(locationRequest, locationCallback, Looper.myLooper())
         } catch (unlikely: SecurityException) {
             SharedPrefsUtil.saveIsTracking(this, false)
-            Log.e(TAG, "Lost location permission. Could not request updates. $unlikely")
+            Logger.error(TAG, "Lost location permission. Could not request updates. $unlikely")
         }
     }
 
@@ -147,14 +152,14 @@ class LocationUpdatesService : Service() {
      * [SecurityException].
      */
     fun stopTracking() {
-        Log.i(TAG, "Removing location updates")
+        Logger.debug(TAG, "Removing location updates")
         try {
             fusedLocationClient?.removeLocationUpdates(locationCallback)
             SharedPrefsUtil.saveIsTracking(this, false)
             stopSelf()
         } catch (unlikely: SecurityException) {
             SharedPrefsUtil.saveIsTracking(this, true)
-            Log.e(TAG, "Lost location permission. Could not remove updates. $unlikely")
+            Logger.error(TAG, "Lost location permission. Could not remove updates. $unlikely")
         }
     }
 
@@ -164,21 +169,23 @@ class LocationUpdatesService : Service() {
                 if (task.isSuccessful && task.result != null) {
                     location = task.result
                 } else {
-                    Log.w(TAG, "Failed to get location.")
+                    Logger.warning(TAG, "Failed to get location.")
                 }
             }
         } catch (unlikely: SecurityException) {
-            Log.e(TAG, "Lost location permission.$unlikely")
+            Logger.error(TAG, "Lost location permission.$unlikely")
         }
     }
 
     private fun onNewLocation(location: Location) {
-        Log.i(TAG, "New location: $location")
+        Logger.debug(TAG, "New location: $location")
         this.location = location
 
         if (serviceIsRunningInForeground(this)) {
-            Log.i(TAG, "serviceIsRunningInForeground so we update the notification")
-            NotificationUtil.showNotification(this, location)
+            if (SharedPrefsUtil.isNotificationLocationUpdatesEnabled(applicationContext)) {
+                Logger.debug(TAG, "Service is running the foreground & notification updates are enabled. So we update the notification")
+                NotificationUtil.showNotification(this, location)
+            }
             FlutterBackgroundManager.sendLocation(applicationContext, location)
         } else {
             val intent = Intent(ACTION_BROADCAST)

@@ -10,7 +10,7 @@ import android.os.IBinder
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.icapps.background_location_tracker.receiver.LocationReceiver
 
-class LocationServiceConnection(private val listener: LocationUpdateListener) : ServiceConnection {
+internal class LocationServiceConnection(private val listener: LocationUpdateListener) : ServiceConnection {
     var service: LocationUpdatesService? = null
     private var locationReceiver = MyLocationReceiver()
     private var bound = false

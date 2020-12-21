@@ -2,7 +2,6 @@ package com.icapps.background_location_tracker
 
 import android.content.Context
 import android.location.Location
-import android.util.Log
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.OnLifecycleEvent
@@ -10,18 +9,15 @@ import com.icapps.background_location_tracker.ext.checkRequiredFields
 import com.icapps.background_location_tracker.flutter.FlutterBackgroundManager
 import com.icapps.background_location_tracker.service.LocationServiceConnection
 import com.icapps.background_location_tracker.service.LocationUpdateListener
+import com.icapps.background_location_tracker.utils.Logger
 import com.icapps.background_location_tracker.utils.NotificationUtil
 import com.icapps.background_location_tracker.utils.SharedPrefsUtil
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 
-class MethodCallHelper(private val ctx: Context) : MethodChannel.MethodCallHandler, LifecycleObserver, LocationUpdateListener {
+internal class MethodCallHelper(private val ctx: Context) : MethodChannel.MethodCallHandler, LifecycleObserver, LocationUpdateListener {
 
     private var serviceConnection = LocationServiceConnection(this)
-
-    init {
-        Log.i(TAG, "YET ANOTHER METHOD CALL HELPER $this")
-    }
 
     fun handle(call: MethodCall, result: MethodChannel.Result) = when (call.method) {
         "initialize" -> initialize(ctx, call, result)
@@ -33,13 +29,34 @@ class MethodCallHelper(private val ctx: Context) : MethodChannel.MethodCallHandl
 
     private fun initialize(ctx: Context, call: MethodCall, result: MethodChannel.Result) {
         val callbackHandleKey = "callback_handle"
+        val loggingEnabledKey = "logging_enabled"
         val channelNameKey = "android_config_channel_name"
-        val keys = listOf(callbackHandleKey, channelNameKey)
+        val notificationBodyKey = "android_config_notification_body"
+        val enableNotificationLocationUpdatesKey = "android_config_enable_notification_location_updates"
+        val enableCancelTrackingActionKey = "android_config_enable_cancel_tracking_action"
+        val cancelTrackingActionTextKey = "android_config_cancel_tracking_action_text"
+        val keys = listOf(
+                callbackHandleKey,
+                loggingEnabledKey,
+                channelNameKey,
+                notificationBodyKey,
+                enableNotificationLocationUpdatesKey,
+                cancelTrackingActionTextKey,
+                enableCancelTrackingActionKey
+        )
         if (!call.checkRequiredFields(keys, result)) return
-        val callbackDispatcherHandleKey = call.argument<Long>(callbackHandleKey)!!
+        val callbackHandle = call.argument<Long>(callbackHandleKey)!!
+        val loggingEnabled = call.argument<Boolean>(loggingEnabledKey)!!
         val channelName = call.argument<String>(channelNameKey)!!
+        val notificationBody = call.argument<String>(notificationBodyKey)!!
+        val enableNotificationLocationUpdates = call.argument<Boolean>(enableNotificationLocationUpdatesKey)!!
+        val cancelTrackingActionText = call.argument<String>(cancelTrackingActionTextKey)!!
+        val enableCancelTrackingAction = call.argument<Boolean>(enableCancelTrackingActionKey)!!
+        SharedPrefsUtil.saveLoggingEnabled(ctx, loggingEnabled)
+        Logger.enabled = loggingEnabled
         NotificationUtil.createNotificationChannels(ctx, channelName)
-        SharedPrefsUtil.saveCallbackDispatcherHandleKey(ctx, callbackDispatcherHandleKey)
+        SharedPrefsUtil.saveCallbackDispatcherHandleKey(ctx, callbackHandle)
+        SharedPrefsUtil.saveNotificationConfig(ctx, notificationBody, cancelTrackingActionText, enableNotificationLocationUpdates, enableCancelTrackingAction)
         result.success(true)
     }
 
@@ -82,13 +99,13 @@ class MethodCallHelper(private val ctx: Context) : MethodChannel.MethodCallHandl
     companion object {
         private val TAG = MethodCallHelper::class.java.simpleName
 
-        private var sInstance: MethodCallHelper? = null
+        private var instance: MethodCallHelper? = null
 
         fun getInstance(ctx: Context): MethodCallHelper? {
-            if (sInstance == null) {
-                sInstance = MethodCallHelper(ctx)
+            if (instance == null) {
+                instance = MethodCallHelper(ctx)
             }
-            return sInstance
+            return instance
         }
     }
 }
