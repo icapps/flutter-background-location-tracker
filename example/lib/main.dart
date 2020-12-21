@@ -34,33 +34,36 @@ class _MyAppState extends State<MyApp> {
         appBar: AppBar(
           title: const Text('Plugin example app'),
         ),
-        body: Column(
-          children: [
-            MaterialButton(
-              child: const Text('Request location permission'),
-              onPressed: _requestLocationPermission,
-            ),
-            if (isTracking != null) ...[
+        body: Container(
+          width: double.infinity,
+          child: Column(
+            children: [
               MaterialButton(
-                child: const Text('Start Tracking'),
-                onPressed: isTracking
-                    ? null
-                    : () {
-                        BackgroundLocationTrackerManager.startTracking();
-                        setState(() => isTracking = true);
-                      },
+                child: const Text('Request location permission'),
+                onPressed: _requestLocationPermission,
               ),
-              MaterialButton(
-                child: const Text('Stop Tracking'),
-                onPressed: isTracking
-                    ? () {
-                        BackgroundLocationTrackerManager.stopTracking();
-                        setState(() => isTracking = false);
-                      }
-                    : null,
-              ),
+              if (isTracking != null) ...[
+                MaterialButton(
+                  child: const Text('Start Tracking'),
+                  onPressed: isTracking
+                      ? null
+                      : () {
+                          BackgroundLocationTrackerManager.startTracking();
+                          setState(() => isTracking = true);
+                        },
+                ),
+                MaterialButton(
+                  child: const Text('Stop Tracking'),
+                  onPressed: isTracking
+                      ? () {
+                          BackgroundLocationTrackerManager.stopTracking();
+                          setState(() => isTracking = false);
+                        }
+                      : null,
+                ),
+              ],
             ],
-          ],
+          ),
         ),
       ),
     );
