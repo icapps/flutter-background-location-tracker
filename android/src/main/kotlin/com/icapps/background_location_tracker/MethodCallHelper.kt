@@ -32,6 +32,7 @@ internal class MethodCallHelper(private val ctx: Context) : MethodChannel.Method
         val loggingEnabledKey = "logging_enabled"
         val channelNameKey = "android_config_channel_name"
         val notificationBodyKey = "android_config_notification_body"
+        val notificationIconKey = "android_config_notification_icon"
         val enableNotificationLocationUpdatesKey = "android_config_enable_notification_location_updates"
         val enableCancelTrackingActionKey = "android_config_enable_cancel_tracking_action"
         val cancelTrackingActionTextKey = "android_config_cancel_tracking_action_text"
@@ -49,6 +50,7 @@ internal class MethodCallHelper(private val ctx: Context) : MethodChannel.Method
         val loggingEnabled = call.argument<Boolean>(loggingEnabledKey)!!
         val channelName = call.argument<String>(channelNameKey)!!
         val notificationBody = call.argument<String>(notificationBodyKey)!!
+        val notificationIcon = call.argument<String>(notificationIconKey)
         val enableNotificationLocationUpdates = call.argument<Boolean>(enableNotificationLocationUpdatesKey)!!
         val cancelTrackingActionText = call.argument<String>(cancelTrackingActionTextKey)!!
         val enableCancelTrackingAction = call.argument<Boolean>(enableCancelTrackingActionKey)!!
@@ -56,7 +58,7 @@ internal class MethodCallHelper(private val ctx: Context) : MethodChannel.Method
         Logger.enabled = loggingEnabled
         NotificationUtil.createNotificationChannels(ctx, channelName)
         SharedPrefsUtil.saveCallbackDispatcherHandleKey(ctx, callbackHandle)
-        SharedPrefsUtil.saveNotificationConfig(ctx, notificationBody, cancelTrackingActionText, enableNotificationLocationUpdates, enableCancelTrackingAction)
+        SharedPrefsUtil.saveNotificationConfig(ctx, notificationBody, notificationIcon, cancelTrackingActionText, enableNotificationLocationUpdates, enableCancelTrackingAction)
         result.success(true)
     }
 

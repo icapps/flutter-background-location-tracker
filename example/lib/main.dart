@@ -12,6 +12,7 @@ Future<void> main() async {
     _backgroundCallback,
     config: const BackgroundLocationTrackerConfig(
       androidConfig: AndroidConfig(
+        notificationIcon: 'explore',
         enableCancelTrackingAction: false,
       ),
     ),
