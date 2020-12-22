@@ -68,9 +68,16 @@ internal object NotificationUtil {
         if (SharedPrefsUtil.isCancelTrackingActionEnabled(context)) {
             builder.addAction(0, SharedPrefsUtil.getCancelTrackingActionText(context), cancelTrackingIntent)
         }
+        val savedIconName = SharedPrefsUtil.getNotificationIcon(context);
+        val icon = if (savedIconName == null) {
+            context.getAppIcon()
+        } else {
+            context.resources.getIdentifier(savedIconName, "drawable", context.packageName)
+        }
+
         builder.setOngoing(true)
                 .setPriority(NotificationCompat.PRIORITY_MAX)
-                .setSmallIcon(context.getAppIcon())
+                .setSmallIcon(icon)
                 .setTicker(text)
                 .setWhen(System.currentTimeMillis())
         return builder.build()

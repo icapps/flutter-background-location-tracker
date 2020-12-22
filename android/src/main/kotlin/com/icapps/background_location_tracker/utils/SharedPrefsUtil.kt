@@ -10,6 +10,7 @@ internal object SharedPrefsUtil {
     private const val KEY_LOGGING_ENABED = "background.location.tracker.manager.LOGGIN_ENABLED"
 
     private const val KEY_NOTIFICATION_BODY = "background.location.tracker.manager.NOTIFICATION_BODY"
+    private const val KEY_NOTIFICATION_ICON = "background.location.tracker.manager.NOTIFICATION_ICON"
     private const val KEY_NOTIFICATION_LOCATION_UPDATES_ENABLED = "background.location.tracker.manager.ENABLE_NOTIFICATION_LOCATION_UPDATES"
     private const val KEY_CANCEL_TRACKING_ACTION_TEXT = "background.location.tracker.manager.ENABLE_CANCEL_TRACKING_TEXT"
     private const val KEY_CANCEL_TRACKING_ACTION_ENABLED = "background.location.tracker.manager.ENABLE_CANCEL_TRACKING_ACTION"
@@ -46,10 +47,11 @@ internal object SharedPrefsUtil {
     fun isLoggingEnabled(ctx: Context): Boolean = ctx.prefs().getBoolean(KEY_LOGGING_ENABED, false)
 
     //NotificationConfig
-    fun saveNotificationConfig(ctx: Context, notificationBody: String, cancelTrackingActionText: String, enableNotificationLocationUpdates: Boolean, enableCancelTrackingAction: Boolean) {
+    fun saveNotificationConfig(ctx: Context, notificationBody: String, notificationIcon: String?, cancelTrackingActionText: String, enableNotificationLocationUpdates: Boolean, enableCancelTrackingAction: Boolean) {
         ctx.prefs()
                 .edit()
                 .putString(KEY_NOTIFICATION_BODY, notificationBody)
+                .putString(KEY_NOTIFICATION_ICON, notificationIcon)
                 .putString(KEY_CANCEL_TRACKING_ACTION_TEXT, cancelTrackingActionText)
                 .putBoolean(KEY_NOTIFICATION_LOCATION_UPDATES_ENABLED, enableNotificationLocationUpdates)
                 .putBoolean(KEY_CANCEL_TRACKING_ACTION_ENABLED, enableCancelTrackingAction)
@@ -57,6 +59,8 @@ internal object SharedPrefsUtil {
     }
 
     fun getNotificationBody(ctx: Context): String = ctx.prefs().getString(KEY_NOTIFICATION_BODY, "Background tracking active. Tap to open.")!!
+
+    fun getNotificationIcon(ctx: Context): String? = ctx.prefs().getString(KEY_NOTIFICATION_ICON, null)
 
     fun getCancelTrackingActionText(ctx: Context): String = ctx.prefs().getString(KEY_CANCEL_TRACKING_ACTION_TEXT, "Stop Tracking")!!
 
