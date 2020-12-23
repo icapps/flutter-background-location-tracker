@@ -73,14 +73,15 @@ extension SwiftBackgroundLocationTrackerPlugin: CLLocationManagerDelegate {
         backgroundMethodChannel?.setMethodCallHandler { (call, result) in
             switch call.method {
             case BackgroundMethods.initialized.rawValue:
+                result(true)
                 let locationData :[String: Any] = [
                     "lat": location.coordinate.latitude,
                     "lon": location.coordinate.longitude,
                     "logging_enabled": SharedPrefsUtil.isLoggingEnabled(),
                 ]
-                backgroundMethodChannel?.invokeMethod(BackgroundMethods.onLocationUpdate.rawValue, arguments: locationData)
-                result(true)
-                cleanupFlutterResources()
+                backgroundMethodChannel?.invokeMethod(BackgroundMethods.onLocationUpdate.rawValue, arguments: locationData, result: { flutterResult in
+                    cleanupFlutterResources()
+                })
             default:
                 cleanupFlutterResources()
                 result(FlutterMethodNotImplemented)
