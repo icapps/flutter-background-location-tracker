@@ -13,10 +13,9 @@ class BackgroundChannel {
       ..setMethodCallHandler((call) async {
         switch (call.method) {
           case 'onLocationUpdate':
-            await handleLocationUpdate(call, callback, enableLogging: enableLogging);
-            break;
+            return handleLocationUpdate(call, callback, enableLogging: enableLogging);
           default:
-            break;
+            return false;
         }
       })
       ..invokeMethod<void>(
@@ -24,13 +23,14 @@ class BackgroundChannel {
       );
   }
 
-  static Future<void> handleLocationUpdate(MethodCall call, LocationUpdateCallback callback, {bool enableLogging = false}) async {
+  static Future<bool> handleLocationUpdate(MethodCall call, LocationUpdateCallback callback, {bool enableLogging = false}) async {
     final data = call.arguments as Map<dynamic, dynamic>; // ignore: avoid_as
     final isLoggingEnabled = data['logging_enabled'] as bool; // ignore: avoid_as
     BackgroundLocationTrackerLogger.enableLogging = isLoggingEnabled;
     BackgroundLocationTrackerLogger.log('locationUpdate: ${call.arguments}');
     final lat = data['lat'] as double; // ignore: avoid_as
     final lon = data['lon'] as double; // ignore: avoid_as
-    callback(BackgroundLocationUpdateData(lat: lat, lon: lon));
+    await callback(BackgroundLocationUpdateData(lat: lat, lon: lon));
+    return true;
   }
 }

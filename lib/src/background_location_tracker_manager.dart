@@ -6,10 +6,9 @@ import 'package:background_location_tracker/src/model/background_location_update
 import 'package:background_location_tracker/src/model/config/background_location_tracker_config.dart';
 import 'package:background_location_tracker/src/util/logger.dart';
 
-typedef LocationUpdateCallback = void Function(BackgroundLocationUpdateData data);
+typedef LocationUpdateCallback = Future<void> Function(BackgroundLocationUpdateData data);
 
 class BackgroundLocationTrackerManager {
-
   static Future<void> initialize(Function callback, {BackgroundLocationTrackerConfig config}) {
     final pluginConfig = config ??= const BackgroundLocationTrackerConfig();
     BackgroundLocationTrackerLogger.enableLogging = pluginConfig.loggingEnabled;
