@@ -11,6 +11,7 @@ dependencies:
   background_location_tracker:
     path: ../
   permission_handler: ^5.0.1+1
+  flutter_local_notifications: ^3.0.2
 
 dev_dependencies:
   flutter_test:
