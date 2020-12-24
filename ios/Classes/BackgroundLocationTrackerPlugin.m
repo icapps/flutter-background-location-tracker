@@ -9,7 +9,13 @@
 #endif
 
 @implementation BackgroundLocationTrackerPlugin
+
 + (void)registerWithRegistrar:(NSObject<FlutterPluginRegistrar>*)registrar {
   [SwiftBackgroundLocationTrackerPlugin registerWithRegistrar:registrar];
 }
+
++ (void)setPluginRegistrantCallback:(FlutterPluginRegistrantCallback)callback {
+    [SwiftBackgroundLocationTrackerPlugin setPluginRegistrantCallback:callback];
+}
+
 @end
