@@ -7,6 +7,7 @@ import android.content.Intent
 import android.content.res.Configuration
 import android.location.Location
 import android.os.Binder
+import android.os.Build
 import android.os.Handler
 import android.os.HandlerThread
 import android.os.IBinder
@@ -138,7 +139,11 @@ internal class LocationUpdatesService : Service() {
     fun startTracking() {
         Logger.debug(TAG, "Requesting location updates")
         SharedPrefsUtil.saveIsTracking(this, true)
-        startService(Intent(applicationContext, LocationUpdatesService::class.java))
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            startForegroundService(Intent(applicationContext, LocationUpdatesService::class.java))
+        } else {
+            startService(Intent(applicationContext, LocationUpdatesService::class.java))
+        }
         try {
             fusedLocationClient?.requestLocationUpdates(locationRequest, locationCallback, Looper.myLooper())
         } catch (unlikely: SecurityException) {
