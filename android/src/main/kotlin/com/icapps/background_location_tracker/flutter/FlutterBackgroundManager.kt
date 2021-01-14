@@ -21,6 +21,7 @@ internal object FlutterBackgroundManager {
 
         val engine = FlutterEngine(ctx)
         FlutterMain.ensureInitializationComplete(ctx, null)
+        //Backwards compatibility with v1. We register all the user's plugins.
         BackgroundLocationTrackerPlugin.pluginRegistryCallback?.registerWith(ShimPluginRegistry(engine))
         return engine
     }
@@ -43,8 +44,6 @@ internal object FlutterBackgroundManager {
         val callbackHandle = SharedPrefsUtil.getCallbackHandle(ctx)
         val callbackInfo = FlutterCallbackInformation.lookupCallbackInformation(callbackHandle)
         val dartBundlePath = FlutterMain.findAppBundlePath()
-
-        //Backwards compatibility with v1. We register all the user's plugins.
         engine.dartExecutor.executeDartCallback(DartExecutor.DartCallback(ctx.assets, dartBundlePath, callbackInfo))
     }
 
