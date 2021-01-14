@@ -12,7 +12,6 @@ import android.os.Handler
 import android.os.HandlerThread
 import android.os.IBinder
 import android.os.Looper
-import android.util.Log
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationCallback
@@ -20,6 +19,7 @@ import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
 import com.icapps.background_location_tracker.flutter.FlutterBackgroundManager
+import com.icapps.background_location_tracker.utils.ActivityCounter
 import com.icapps.background_location_tracker.utils.Logger
 import com.icapps.background_location_tracker.utils.SharedPrefsUtil
 import com.icapps.background_location_tracker.utils.NotificationUtil
@@ -139,8 +139,9 @@ internal class LocationUpdatesService : Service() {
     fun startTracking() {
         Logger.debug(TAG, "Requesting location updates")
         SharedPrefsUtil.saveIsTracking(this, true)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && ActivityCounter.isAppInBackground()) {
             startForegroundService(Intent(applicationContext, LocationUpdatesService::class.java))
+            NotificationUtil.startForeground(this, location)
         } else {
             startService(Intent(applicationContext, LocationUpdatesService::class.java))
         }
