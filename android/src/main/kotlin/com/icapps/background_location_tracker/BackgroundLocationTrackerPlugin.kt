@@ -11,6 +11,7 @@ import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.embedding.engine.plugins.activity.ActivityAware
 import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding
 import com.icapps.background_location_tracker.flutter.FlutterLifecycleAdapter
+import com.icapps.background_location_tracker.utils.ActivityCounter
 import com.icapps.background_location_tracker.utils.Logger
 import io.flutter.plugin.common.BinaryMessenger
 import io.flutter.plugin.common.MethodCall
@@ -34,6 +35,7 @@ class BackgroundLocationTrackerPlugin : FlutterPlugin, MethodCallHandler, Activi
     override fun onAttachedToActivity(binding: ActivityPluginBinding) {
         lifecycle = FlutterLifecycleAdapter.getActivityLifecycle(binding)
         if (methodCallHelper == null) {
+        ActivityCounter.attach(binding.activity)
             methodCallHelper = MethodCallHelper.getInstance(binding.activity.applicationContext)
         }
         methodCallHelper?.let {
@@ -84,6 +86,7 @@ class BackgroundLocationTrackerPlugin : FlutterPlugin, MethodCallHandler, Activi
                 ProxyLifecycleProvider(activity).lifecycle
             }
 
+            ActivityCounter.attach(activity)
             val channel = MethodChannel(registrar.messenger(), FOREGROUND_CHANNEL_NAME)
             channel.setMethodCallHandler(BackgroundLocationTrackerPlugin().apply {
                 if (methodCallHelper == null) {
@@ -127,6 +130,7 @@ class BackgroundLocationTrackerPlugin : FlutterPlugin, MethodCallHandler, Activi
         }
 
         override fun onActivityResumed(activity: Activity) {
+            activities.add(activity.hashCode())
             if (activity.hashCode() != registrarActivityHashCode) {
                 return
             }
@@ -134,6 +138,7 @@ class BackgroundLocationTrackerPlugin : FlutterPlugin, MethodCallHandler, Activi
         }
 
         override fun onActivityPaused(activity: Activity) {
+            activities.remove(activity.hashCode())
             if (activity.hashCode() != registrarActivityHashCode) {
                 return
             }
@@ -157,5 +162,11 @@ class BackgroundLocationTrackerPlugin : FlutterPlugin, MethodCallHandler, Activi
         }
 
         override fun getLifecycle(): Lifecycle = lifecycle
+
+        companion object {
+            private val activities = ArrayList<Int>()
+
+            fun isAppInForeground(): Boolean = activities.isNotEmpty()
+        }
     }
 }
