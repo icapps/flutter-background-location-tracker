@@ -130,7 +130,6 @@ class BackgroundLocationTrackerPlugin : FlutterPlugin, MethodCallHandler, Activi
         }
 
         override fun onActivityResumed(activity: Activity) {
-            activities.add(activity.hashCode())
             if (activity.hashCode() != registrarActivityHashCode) {
                 return
             }
@@ -138,7 +137,6 @@ class BackgroundLocationTrackerPlugin : FlutterPlugin, MethodCallHandler, Activi
         }
 
         override fun onActivityPaused(activity: Activity) {
-            activities.remove(activity.hashCode())
             if (activity.hashCode() != registrarActivityHashCode) {
                 return
             }
@@ -162,11 +160,5 @@ class BackgroundLocationTrackerPlugin : FlutterPlugin, MethodCallHandler, Activi
         }
 
         override fun getLifecycle(): Lifecycle = lifecycle
-
-        companion object {
-            private val activities = ArrayList<Int>()
-
-            fun isAppInForeground(): Boolean = activities.isNotEmpty()
-        }
     }
 }
