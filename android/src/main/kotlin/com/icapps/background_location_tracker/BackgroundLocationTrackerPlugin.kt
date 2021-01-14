@@ -7,12 +7,13 @@ import android.os.Bundle
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LifecycleRegistry
-import io.flutter.embedding.engine.plugins.FlutterPlugin
-import io.flutter.embedding.engine.plugins.activity.ActivityAware
-import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding
+import com.icapps.background_location_tracker.flutter.FlutterBackgroundManager
 import com.icapps.background_location_tracker.flutter.FlutterLifecycleAdapter
 import com.icapps.background_location_tracker.utils.ActivityCounter
 import com.icapps.background_location_tracker.utils.Logger
+import io.flutter.embedding.engine.plugins.FlutterPlugin
+import io.flutter.embedding.engine.plugins.activity.ActivityAware
+import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding
 import io.flutter.plugin.common.BinaryMessenger
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
@@ -24,9 +25,12 @@ class BackgroundLocationTrackerPlugin : FlutterPlugin, MethodCallHandler, Activi
     private var lifecycle: Lifecycle? = null
     private var methodCallHelper: MethodCallHelper? = null
 
-    override fun onAttachedToEngine(binding: FlutterPlugin.FlutterPluginBinding) = registerBackgroundLocationManager(binding.binaryMessenger, binding.applicationContext)
+    override fun onAttachedToEngine(binding: FlutterPlugin.FlutterPluginBinding) {
+        registerBackgroundLocationManager(binding.binaryMessenger, binding.applicationContext)
+    }
 
-    override fun onDetachedFromEngine(binding: FlutterPlugin.FlutterPluginBinding) {}
+    override fun onDetachedFromEngine(binding: FlutterPlugin.FlutterPluginBinding) {
+    }
 
     override fun onMethodCall(call: MethodCall, result: Result) {
         methodCallHelper?.handle(call, result)
@@ -35,7 +39,7 @@ class BackgroundLocationTrackerPlugin : FlutterPlugin, MethodCallHandler, Activi
     override fun onAttachedToActivity(binding: ActivityPluginBinding) {
         lifecycle = FlutterLifecycleAdapter.getActivityLifecycle(binding)
         if (methodCallHelper == null) {
-        ActivityCounter.attach(binding.activity)
+            ActivityCounter.attach(binding.activity)
             methodCallHelper = MethodCallHelper.getInstance(binding.activity.applicationContext)
         }
         methodCallHelper?.let {
