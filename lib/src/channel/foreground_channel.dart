@@ -1,4 +1,5 @@
 import 'dart:ui';
+import 'package:background_location_tracker/src/model/config/android_config.dart';
 import 'package:background_location_tracker/src/model/config/background_location_tracker_config.dart';
 import 'package:flutter/services.dart';
 
@@ -28,7 +29,18 @@ class ForegroundChannel {
 
   static Future<bool> isTracking() => _foregroundChannel.invokeMethod('isTracking');
 
-  static Future<void> startTracking() => _foregroundChannel.invokeMethod('startTracking');
+  static Future<void> startTracking({AndroidConfig config}) {
+    return _foregroundChannel.invokeMethod(
+      'startTracking',
+      {
+        'android_config_notification_body': config?.notificationBody,
+        'android_config_notification_icon': config?.notificationIcon,
+        'android_config_enable_notification_location_updates': config?.enableNotificationLocationUpdates,
+        'android_config_cancel_tracking_action_text': config?.cancelTrackingActionText,
+        'android_config_enable_cancel_tracking_action': config?.enableCancelTrackingAction,
+      },
+    );
+  }
 
   static Future<void> stopTracking() => _foregroundChannel.invokeMethod('stopTracking');
 }
