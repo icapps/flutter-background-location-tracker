@@ -65,6 +65,26 @@ internal class MethodCallHelper(private val ctx: Context) : MethodChannel.Method
     private fun isTracking(ctx: Context, call: MethodCall, result: MethodChannel.Result) = result.success(SharedPrefsUtil.isTracking(ctx))
 
     private fun startTracking(ctx: Context, call: MethodCall, result: MethodChannel.Result) {
+        val notificationBodyKey = "android_config_notification_body"
+        val notificationIconKey = "android_config_notification_icon"
+        val enableNotificationLocationUpdatesKey = "android_config_enable_notification_location_updates"
+        val enableCancelTrackingActionKey = "android_config_enable_cancel_tracking_action"
+        val cancelTrackingActionTextKey = "android_config_cancel_tracking_action_text"
+        val keys = listOf(
+                notificationBodyKey,
+                enableNotificationLocationUpdatesKey,
+                cancelTrackingActionTextKey,
+                enableCancelTrackingActionKey
+        )
+        if (!call.checkRequiredFields(keys, result)) return
+        val notificationBody = call.argument<String>(notificationBodyKey)!!
+        val notificationIcon = call.argument<String>(notificationIconKey)
+        val enableNotificationLocationUpdates = call.argument<Boolean>(enableNotificationLocationUpdatesKey)!!
+        val cancelTrackingActionText = call.argument<String>(cancelTrackingActionTextKey)!!
+        val enableCancelTrackingAction = call.argument<Boolean>(enableCancelTrackingActionKey)!!
+        if (notificationBody != null && notificationIcon != null && cancelTrackingActionText != null && enableNotificationLocationUpdates != null && enableCancelTrackingAction != null) {
+            SharedPrefsUtil.saveNotificationConfig(ctx, notificationBody, notificationIcon, cancelTrackingActionText, enableNotificationLocationUpdates, enableCancelTrackingAction)
+        }
         serviceConnection.service?.startTracking()
         result.success(true)
     }

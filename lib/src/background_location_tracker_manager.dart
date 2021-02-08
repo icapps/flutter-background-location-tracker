@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:background_location_tracker/background_location_tracker.dart';
 import 'package:background_location_tracker/src/channel/background_channel.dart';
 import 'package:background_location_tracker/src/channel/foreground_channel.dart';
 import 'package:background_location_tracker/src/model/background_location_update_data.dart';
@@ -17,7 +18,7 @@ class BackgroundLocationTrackerManager {
 
   static Future<bool> isTracking() async => ForegroundChannel.isTracking();
 
-  static Future<void> startTracking() async => ForegroundChannel.startTracking();
+  static Future<void> startTracking({AndroidConfig config}) async => ForegroundChannel.startTracking(config: config);
 
   static Future<void> stopTracking() async => ForegroundChannel.stopTracking();
 
