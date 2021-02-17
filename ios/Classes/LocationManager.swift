@@ -14,6 +14,9 @@ class LocationManager {
         let manager = CLLocationManager()
         manager.activityType = .automotiveNavigation
         manager.desiredAccuracy = kCLLocationAccuracyBest
+        if #available(iOS 11, *) {
+            manager.showsBackgroundLocationIndicator = true
+        }
         if #available(iOS 9.0, *) {
             manager.allowsBackgroundLocationUpdates = true
         }
