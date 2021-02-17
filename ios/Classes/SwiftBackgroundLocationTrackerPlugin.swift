@@ -57,20 +57,17 @@ extension SwiftBackgroundLocationTrackerPlugin: CLLocationManagerDelegate {
               let flutterCallbackInformation = FlutterCallbackCache.lookupCallbackInformation(callbackHandle)
         else { return }
         
-        var flutterEngine: FlutterEngine? = FlutterEngine(name: flutterThreadLabelPrefix, project: nil, allowHeadlessExecution: true)
-        flutterEngine!.run(withEntrypoint: flutterCallbackInformation.callbackName, libraryURI: flutterCallbackInformation.callbackLibraryPath)
-        SwiftBackgroundLocationTrackerPlugin.flutterPluginRegistrantCallback?(flutterEngine!)
+        CustomLogger.log(message: "callbackHandle: \(callbackHandle)")
+        CustomLogger.log(message: "flutterCallbackInformation: \(flutterCallbackInformation)")
+        CustomLogger.log(message: "flutterCallbackInformation-name: \(String(describing: flutterCallbackInformation.callbackName))")
+        CustomLogger.log(message: "flutterCallbackInformation-callbackLibraryPath: \(String(describing: flutterCallbackInformation.callbackLibraryPath))")
         
-        var backgroundMethodChannel: FlutterMethodChannel? = FlutterMethodChannel(name: SwiftBackgroundLocationTrackerPlugin.BACKGROUND_CHANNEL_NAME, binaryMessenger: flutterEngine!.binaryMessenger)
+        let flutterEngine: FlutterEngine = FlutterEngine(name: flutterThreadLabelPrefix, project: nil, allowHeadlessExecution: true)
+        flutterEngine.run(withEntrypoint: flutterCallbackInformation.callbackName, libraryURI: flutterCallbackInformation.callbackLibraryPath)
+        SwiftBackgroundLocationTrackerPlugin.flutterPluginRegistrantCallback?(flutterEngine)
         
-        
-        func cleanupFlutterResources() {
-            flutterEngine?.destroyContext()
-            backgroundMethodChannel = nil
-            flutterEngine = nil
-        }
-        
-        backgroundMethodChannel?.setMethodCallHandler { (call, result) in
+        let backgroundMethodChannel: FlutterMethodChannel = FlutterMethodChannel(name: SwiftBackgroundLocationTrackerPlugin.BACKGROUND_CHANNEL_NAME, binaryMessenger: flutterEngine.binaryMessenger)
+        backgroundMethodChannel.setMethodCallHandler { (call, result) in
             switch call.method {
             case BackgroundMethods.initialized.rawValue:
                 result(true)
@@ -79,12 +76,12 @@ extension SwiftBackgroundLocationTrackerPlugin: CLLocationManagerDelegate {
                     "lon": location.coordinate.longitude,
                     "logging_enabled": SharedPrefsUtil.isLoggingEnabled(),
                 ]
-                backgroundMethodChannel?.invokeMethod(BackgroundMethods.onLocationUpdate.rawValue, arguments: locationData, result: { flutterResult in
-                    cleanupFlutterResources()
+                backgroundMethodChannel.invokeMethod(BackgroundMethods.onLocationUpdate.rawValue, arguments: locationData, result: { flutterResult in
+                    flutterEngine.destroyContext()
                 })
             default:
-                cleanupFlutterResources()
                 result(FlutterMethodNotImplemented)
+                flutterEngine.destroyContext()
             }
         }
     }
