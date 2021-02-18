@@ -10,9 +10,7 @@ public class SwiftBackgroundLocationTrackerPlugin: FlutterPluginAppLifeCycleDele
     
     private static var foregroundChannel: ForegroundChannel? = nil
     
-    private static var flutterEngine: FlutterEngine? = nil
-    private static var backgroundMethodChannel: FlutterMethodChannel? = nil
-    
+    private static var flutterEngine: FlutterEngine? = nil    
     
     private static var flutterPluginRegistrantCallback: FlutterPluginRegistrantCallback?
     
@@ -53,11 +51,6 @@ extension SwiftBackgroundLocationTrackerPlugin: FlutterPlugin {
         
         return flutterEngine;
     }
-    
-    public static func getBackgroundMethodChannel(flutterEngine: FlutterEngine)-> FlutterMethodChannel? {
-        backgroundMethodChannel = backgroundMethodChannel ?? FlutterMethodChannel(name: SwiftBackgroundLocationTrackerPlugin.BACKGROUND_CHANNEL_NAME, binaryMessenger: flutterEngine.binaryMessenger)
-        return backgroundMethodChannel
-    }
 }
 
 fileprivate enum BackgroundMethods: String {
@@ -80,11 +73,7 @@ extension SwiftBackgroundLocationTrackerPlugin: CLLocationManagerDelegate {
         
         CustomLogger.log(message: "NEW LOCATION: \(location.coordinate.latitude): \(location.coordinate.longitude)")
         
-        guard let backgroundMethodChannel = SwiftBackgroundLocationTrackerPlugin.getBackgroundMethodChannel(flutterEngine: flutterEngine) else {
-            CustomLogger.log(message: "No flutter background channel method available ...")
-            return
-        }
-        CustomLogger.log(message: "Ready to set background channel")
+        let backgroundMethodChannel = FlutterMethodChannel(name: SwiftBackgroundLocationTrackerPlugin.BACKGROUND_CHANNEL_NAME, binaryMessenger: flutterEngine.binaryMessenger)
         backgroundMethodChannel.setMethodCallHandler { (call, result) in
             switch call.method {
             case BackgroundMethods.initialized.rawValue:
