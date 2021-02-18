@@ -40,6 +40,7 @@ extension SwiftBackgroundLocationTrackerPlugin: FlutterPlugin {
     
     public static func getFlutterEngine()-> FlutterEngine? {
         flutterEngine = flutterEngine ?? FlutterEngine(name: flutterThreadLabelPrefix, project: nil, allowHeadlessExecution: true)
+        SwiftBackgroundLocationTrackerPlugin.flutterPluginRegistrantCallback?(flutterEngine)
         return flutterEngine;
     }
 }
@@ -72,7 +73,6 @@ extension SwiftBackgroundLocationTrackerPlugin: CLLocationManagerDelegate {
         CustomLogger.log(message: "NEW LOCATION: \(location.coordinate.latitude): \(location.coordinate.longitude)")
         
         flutterEngine.run(withEntrypoint: flutterCallbackInformation.callbackName, libraryURI: flutterCallbackInformation.callbackLibraryPath)
-        SwiftBackgroundLocationTrackerPlugin.flutterPluginRegistrantCallback?(flutterEngine)
         
         let backgroundMethodChannel = FlutterMethodChannel(name: SwiftBackgroundLocationTrackerPlugin.BACKGROUND_CHANNEL_NAME, binaryMessenger: flutterEngine.binaryMessenger)
         backgroundMethodChannel.setMethodCallHandler { (call, result) in
