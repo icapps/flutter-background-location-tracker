@@ -40,7 +40,7 @@ extension SwiftBackgroundLocationTrackerPlugin: FlutterPlugin {
     
     public static func getFlutterEngine()-> FlutterEngine? {
         flutterEngine = flutterEngine ?? FlutterEngine(name: flutterThreadLabelPrefix, project: nil, allowHeadlessExecution: true)
-        SwiftBackgroundLocationTrackerPlugin.flutterPluginRegistrantCallback?(flutterEngine)
+        SwiftBackgroundLocationTrackerPlugin.flutterPluginRegistrantCallback?(flutterEngine!)
         return flutterEngine;
     }
 }
