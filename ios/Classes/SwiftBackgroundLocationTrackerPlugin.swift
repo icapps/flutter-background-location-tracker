@@ -84,6 +84,7 @@ extension SwiftBackgroundLocationTrackerPlugin: CLLocationManagerDelegate {
             CustomLogger.log(message: "No flutter background channel method available ...")
             return
         }
+        CustomLogger.log(message: "Ready to set background channel")
         backgroundMethodChannel.setMethodCallHandler { (call, result) in
             switch call.method {
             case BackgroundMethods.initialized.rawValue:
@@ -93,8 +94,13 @@ extension SwiftBackgroundLocationTrackerPlugin: CLLocationManagerDelegate {
                     "lon": location.coordinate.longitude,
                     "logging_enabled": SharedPrefsUtil.isLoggingEnabled(),
                 ]
-                backgroundMethodChannel.invokeMethod(BackgroundMethods.onLocationUpdate.rawValue, arguments: locationData, result: { flutterResult in })
+                
+                CustomLogger.log(message: "INITIALIZED, ready to send location updates")
+                backgroundMethodChannel.invokeMethod(BackgroundMethods.onLocationUpdate.rawValue, arguments: locationData, result: { flutterResult in
+                    CustomLogger.log(message: "Received result: \(flutterResult.debugDescription)")
+                })
             default:
+                CustomLogger.log(message: "Not implemented method -> \(call.method)")
                 result(FlutterMethodNotImplemented)
             }
         }
