@@ -127,6 +127,9 @@ extension SwiftBackgroundLocationTrackerPlugin: CLLocationManagerDelegate {
                 return
             }
             SwiftBackgroundLocationTrackerPlugin.initBackgroundMethodChannel(flutterEngine: flutterEngine)
+            
+            CustomLogger.log(message: "Let's try to send the location update anyway ...")
+            SwiftBackgroundLocationTrackerPlugin.sendLocationupdate(locationData: locationData)
         }
     }
 }
