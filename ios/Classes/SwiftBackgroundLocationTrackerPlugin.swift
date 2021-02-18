@@ -39,16 +39,7 @@ extension SwiftBackgroundLocationTrackerPlugin: FlutterPlugin {
     }
     
     public static func getFlutterEngine()-> FlutterEngine? {
-        if (flutterEngine == nil){
-            guard let callbackHandle = SharedPrefsUtil.getCallbackHandle(),
-                  let flutterCallbackInformation = FlutterCallbackCache.lookupCallbackInformation(callbackHandle)
-            else { return nil }
-            
-            flutterEngine = FlutterEngine(name: flutterThreadLabelPrefix, project: nil, allowHeadlessExecution: true)
-            flutterEngine!.run(withEntrypoint: flutterCallbackInformation.callbackName, libraryURI: flutterCallbackInformation.callbackLibraryPath)
-            SwiftBackgroundLocationTrackerPlugin.flutterPluginRegistrantCallback?(flutterEngine!)
-        }
-        
+        flutterEngine = flutterEngine ?? FlutterEngine(name: flutterThreadLabelPrefix, project: nil, allowHeadlessExecution: true)
         return flutterEngine;
     }
 }
@@ -66,12 +57,22 @@ extension SwiftBackgroundLocationTrackerPlugin: CLLocationManagerDelegate {
             CustomLogger.log(message: "No location ...")
             return
         }
+        
         guard let flutterEngine = SwiftBackgroundLocationTrackerPlugin.getFlutterEngine() else {
             CustomLogger.log(message: "No flutter engine available ...")
             return
         }
         
+        guard let callbackHandle = SharedPrefsUtil.getCallbackHandle(),
+              let flutterCallbackInformation = FlutterCallbackCache.lookupCallbackInformation(callbackHandle) else {
+            CustomLogger.log(message: "No flutter callback cache ...")
+            return
+        }
+        
         CustomLogger.log(message: "NEW LOCATION: \(location.coordinate.latitude): \(location.coordinate.longitude)")
+        
+        flutterEngine.run(withEntrypoint: flutterCallbackInformation.callbackName, libraryURI: flutterCallbackInformation.callbackLibraryPath)
+        SwiftBackgroundLocationTrackerPlugin.flutterPluginRegistrantCallback?(flutterEngine)
         
         let backgroundMethodChannel = FlutterMethodChannel(name: SwiftBackgroundLocationTrackerPlugin.BACKGROUND_CHANNEL_NAME, binaryMessenger: flutterEngine.binaryMessenger)
         backgroundMethodChannel.setMethodCallHandler { (call, result) in
