@@ -14,6 +14,7 @@ public class SwiftBackgroundLocationTrackerPlugin: FlutterPluginAppLifeCycleDele
     private static var flutterEngine: FlutterEngine? = nil
     private static var hasRegisteredPlugins = false
     private static var initializedBackgroundCallbacks = false
+    private static var initializedBackgroundCallbacksStarted = false
     private static var locationData: [String: Any]? = nil
     
     private static var flutterPluginRegistrantCallback: FlutterPluginRegistrantCallback?
@@ -58,12 +59,13 @@ extension SwiftBackgroundLocationTrackerPlugin: FlutterPlugin {
         return flutterEngine
     }
     
-    public static func getBackgroundMethodChannel(flutterEngine: FlutterEngine)-> FlutterMethodChannel? {
+    public static func initBackgroundMethodChannel(flutterEngine: FlutterEngine) {
         if (backgroundMethodChannel == nil) {
             let backgroundMethodChannel = FlutterMethodChannel(name: SwiftBackgroundLocationTrackerPlugin.BACKGROUND_CHANNEL_NAME, binaryMessenger: flutterEngine.binaryMessenger)
             backgroundMethodChannel.setMethodCallHandler { (call, result) in
                 switch call.method {
                 case BackgroundMethods.initialized.rawValue:
+                    CustomLogger.log(message: "Initialized ...")
                     initializedBackgroundCallbacks = true
                     let locationData = SwiftBackgroundLocationTrackerPlugin.locationData
                     if let data = locationData {
@@ -77,16 +79,10 @@ extension SwiftBackgroundLocationTrackerPlugin: FlutterPlugin {
             }
             self.backgroundMethodChannel = backgroundMethodChannel
         }
-        return backgroundMethodChannel
     }
     
     public static func sendLocationupdate(locationData: [String: Any]){
-        guard let flutterEngine = SwiftBackgroundLocationTrackerPlugin.getFlutterEngine() else {
-            CustomLogger.log(message: "No flutter engine available ...")
-            return
-        }
-        
-        guard let backgroundMethodChannel = SwiftBackgroundLocationTrackerPlugin.getBackgroundMethodChannel(flutterEngine: flutterEngine) else {
+        guard let backgroundMethodChannel = SwiftBackgroundLocationTrackerPlugin.backgroundMethodChannel else {
             CustomLogger.log(message: "No background channel available ...")
             return
         }
@@ -124,6 +120,16 @@ extension SwiftBackgroundLocationTrackerPlugin: CLLocationManagerDelegate {
         } else {
             CustomLogger.log(message: "NOT YET INITIALIZED. Cache the location data")
             SwiftBackgroundLocationTrackerPlugin.locationData = locationData
+            
+            if (!SwiftBackgroundLocationTrackerPlugin.initializedBackgroundCallbacksStarted){
+                SwiftBackgroundLocationTrackerPlugin.initializedBackgroundCallbacksStarted = true
+            
+                guard let flutterEngine = SwiftBackgroundLocationTrackerPlugin.getFlutterEngine() else {
+                    CustomLogger.log(message: "No Flutter engine available ...")
+                    return
+                }
+                SwiftBackgroundLocationTrackerPlugin.initBackgroundMethodChannel(flutterEngine: flutterEngine)
+            }
         }
     }
 }
