@@ -10,11 +10,11 @@ import Foundation
 struct CustomLogger {
     
     static func log(message: String) {
-        if #available(iOS 10.0, *) {
-            let app = OSLog(subsystem: "com.icapps.background_location_tracker", category: "background tracker")
-            os_log("🔥 background-location log: %{public}@", log: app, type: .error, message)
-        }
         if SharedPrefsUtil.isLoggingEnabled() {
+            if #available(iOS 10.0, *) {
+                let app = OSLog(subsystem: "com.icapps.background_location_tracker", category: "background tracker")
+                os_log("🔥 background-location log: %{public}@", log: app, type: .error, message)
+            }
             print(message)
         }
     }

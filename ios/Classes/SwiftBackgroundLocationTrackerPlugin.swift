@@ -52,9 +52,14 @@ extension SwiftBackgroundLocationTrackerPlugin: FlutterPlugin {
                 CustomLogger.log(message: "No flutter callback cache ...")
                 return nil
             }
-            flutterEngine.run(withEntrypoint: flutterCallbackInformation.callbackName, libraryURI: flutterCallbackInformation.callbackLibraryPath)
-            SwiftBackgroundLocationTrackerPlugin.flutterPluginRegistrantCallback?(flutterEngine)
-            self.flutterEngine = flutterEngine
+            let success = flutterEngine.run(withEntrypoint: flutterCallbackInformation.callbackName, libraryURI: flutterCallbackInformation.callbackLibraryPath)
+            if (success) {
+                SwiftBackgroundLocationTrackerPlugin.flutterPluginRegistrantCallback?(flutterEngine)
+                self.flutterEngine = flutterEngine
+            } else {
+                flutterEngine.destroyContext()
+                CustomLogger.log(message: "FlutterEngine.run returned `false` this means that the callback function could not be fount, triggered or there was a crash in your callback function.")
+            }
         }
         return flutterEngine
     }
