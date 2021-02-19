@@ -44,7 +44,7 @@ extension SwiftBackgroundLocationTrackerPlugin: FlutterPlugin {
     }
     
     public static func getFlutterEngine()-> FlutterEngine? {
-        if (flutterEngine == nil) {
+        if flutterEngine == nil {
             let flutterEngine = FlutterEngine(name: flutterThreadLabelPrefix, project: nil, allowHeadlessExecution: true)
             
             guard let callbackHandle = SharedPrefsUtil.getCallbackHandle(),
@@ -67,7 +67,7 @@ extension SwiftBackgroundLocationTrackerPlugin: FlutterPlugin {
     }
     
     public static func initBackgroundMethodChannel(flutterEngine: FlutterEngine) {
-        if (backgroundMethodChannel == nil) {
+        if backgroundMethodChannel == nil {
             let backgroundMethodChannel = FlutterMethodChannel(name: SwiftBackgroundLocationTrackerPlugin.BACKGROUND_CHANNEL_NAME, binaryMessenger: flutterEngine.binaryMessenger)
             backgroundMethodChannel.setMethodCallHandler { (call, result) in
                 switch call.method {
@@ -122,14 +122,14 @@ extension SwiftBackgroundLocationTrackerPlugin: CLLocationManagerDelegate {
             "logging_enabled": SharedPrefsUtil.isLoggingEnabled(),
         ]
         
-        if (SwiftBackgroundLocationTrackerPlugin.initializedBackgroundCallbacks) {
+        if SwiftBackgroundLocationTrackerPlugin.initializedBackgroundCallbacks {
             CustomLogger.log(message: "INITIALIZED, ready to send location updates")
             SwiftBackgroundLocationTrackerPlugin.sendLocationupdate(locationData: locationData)
         } else {
             CustomLogger.log(message: "NOT YET INITIALIZED. Cache the location data")
             SwiftBackgroundLocationTrackerPlugin.locationData = locationData
             
-            if (!SwiftBackgroundLocationTrackerPlugin.initializedBackgroundCallbacksStarted){
+            if !SwiftBackgroundLocationTrackerPlugin.initializedBackgroundCallbacksStarted {
                 SwiftBackgroundLocationTrackerPlugin.initializedBackgroundCallbacksStarted = true
             
                 guard let flutterEngine = SwiftBackgroundLocationTrackerPlugin.getFlutterEngine() else {
