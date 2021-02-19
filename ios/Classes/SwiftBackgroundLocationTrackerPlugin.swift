@@ -59,8 +59,8 @@ extension SwiftBackgroundLocationTrackerPlugin: FlutterPlugin {
                 SwiftBackgroundLocationTrackerPlugin.flutterPluginRegistrantCallback?(flutterEngine)
                 self.flutterEngine = flutterEngine
             } else {
+                CustomLogger.log(message: "FlutterEngine.run returned `false` we will cleanup the flutterEngine")
                 flutterEngine.destroyContext()
-                CustomLogger.log(message: "FlutterEngine.run returned `false` this means that the callback function could not be fount, triggered or there was a crash in your callback function.")
             }
         }
         return flutterEngine
