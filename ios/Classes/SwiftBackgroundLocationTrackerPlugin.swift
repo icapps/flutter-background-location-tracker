@@ -55,7 +55,7 @@ extension SwiftBackgroundLocationTrackerPlugin: FlutterPlugin {
             let success = flutterEngine.run(withEntrypoint: flutterCallbackInformation.callbackName, libraryURI: flutterCallbackInformation.callbackLibraryPath)
             
             CustomLogger.log(message: "FlutterEngine.run returned `\(success)`")
-            if (success) {
+            if success {
                 SwiftBackgroundLocationTrackerPlugin.flutterPluginRegistrantCallback?(flutterEngine)
                 self.flutterEngine = flutterEngine
             } else {
