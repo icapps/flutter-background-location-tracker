@@ -15,7 +15,7 @@ class AndroidConfig {
   final String notificationBody;
 
   /// The icon string will be used to get the id of an icon that is added to you android native project
-  final String notificationIcon;
+  final String? notificationIcon;
 
   /// enableNotificationLocationUpdates will only be used when logging is enabled
   final bool enableNotificationLocationUpdates;

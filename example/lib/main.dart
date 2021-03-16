@@ -61,7 +61,7 @@ class _MyAppState extends State<MyApp> {
                 child: const Text('Send notification'),
                 onPressed: () => sendNotification('Hallokes'),
               ),
-              if (isTracking != null) ...[
+              if (isTracking) ...[
                 MaterialButton(
                   child: const Text('Start Tracking'),
                   onPressed: isTracking
@@ -113,7 +113,7 @@ class _MyAppState extends State<MyApp> {
 }
 
 class Repo {
-  static Repo _instance;
+  static Repo? _instance;
 
   Repo._();
 

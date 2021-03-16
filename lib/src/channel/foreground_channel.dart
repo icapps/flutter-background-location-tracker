@@ -8,9 +8,11 @@ class ForegroundChannel {
 
   static const MethodChannel _foregroundChannel = MethodChannel(_FOREGROUND_CHANNEL_NAME);
 
-  static Future<void> initialize(Function callbackDispatcher, {BackgroundLocationTrackerConfig config}) async {
+  static Future<void> initialize(Function callbackDispatcher, {required BackgroundLocationTrackerConfig config}) async {
     final callback = PluginUtilities.getCallbackHandle(callbackDispatcher);
-    assert(callback != null, 'The callbackDispatcher needs to be either a static function or a top level function to be accessible as a Flutter entry point.');
+    if (callback == null) {
+      throw ArgumentError('The callbackDispatcher needs to be either a static function or a top level function to be accessible as a Flutter entry point.');
+    }
     final handle = callback.toRawHandle();
     await _foregroundChannel.invokeMethod<void>(
       'initialize',
@@ -27,9 +29,12 @@ class ForegroundChannel {
     );
   }
 
-  static Future<bool> isTracking() => _foregroundChannel.invokeMethod('isTracking');
+  static Future<bool> isTracking() async {
+    final result = await _foregroundChannel.invokeMethod<bool>('isTracking');
+    return result == true;
+  }
 
-  static Future<void> startTracking({AndroidConfig config}) {
+  static Future<void> startTracking({AndroidConfig? config}) {
     return _foregroundChannel.invokeMethod(
       'startTracking',
       {
