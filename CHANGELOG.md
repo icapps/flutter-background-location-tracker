@@ -1,3 +1,6 @@
-## 0.0.1
+## 1.0.0 - 16-03-2020
 
-* TODO: Describe initial release.
+Initial release
+- Background location tracking
+- Nullsafety
+- Android v1 & v2 embedding support
