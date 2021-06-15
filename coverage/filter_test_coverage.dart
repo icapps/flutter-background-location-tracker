@@ -10,7 +10,7 @@ void main() {
   const endOfRecord = 'end_of_record';
   final sections = <LcovSection>[];
   final lines = file.readAsLinesSync();
-  LcovSection currentSection;
+  LcovSection? currentSection;
   lines.forEach((line) {
     if (line.endsWith('.dart')) {
       final filePath = line.replaceAll('SF:', '');
@@ -18,10 +18,13 @@ void main() {
         ..header = line
         ..filePath = filePath;
     } else if (line == endOfRecord) {
-      currentSection.footer = line;
-      sections.add(currentSection);
+      final session = currentSection;
+      if (session != null) {
+        session.footer = line;
+        sections.add(session);
+      }
     } else {
-      currentSection.body.add(line);
+      currentSection?.body.add(line);
     }
   });
   final filteredSections = getFilteredSections(sections);
@@ -34,13 +37,17 @@ void main() {
 }
 
 class LcovSection {
-  String filePath;
-  String header;
+  String? filePath;
+  String? header;
   final body = <String>[];
-  String footer;
+  String? footer;
 
   String getBodyString() {
-    final file = File(filePath);
+    final path = filePath;
+    if (path == null) {
+      throw ArgumentError('file path can not be null');
+    }
+    final file = File(path);
     final content = file.readAsLinesSync();
     final sb = StringBuffer();
     getFilteredBody(body, content).forEach((item) => sb..write(item)..write('\n'));
@@ -55,13 +62,13 @@ class LcovSection {
 
 List<LcovSection> getFilteredSections(List<LcovSection> sections) {
   return sections.where((section) {
-    if (section.header.endsWith('.g.dart')) {
+    if (section.header?.endsWith('.g.dart') == true) {
       return false;
-    } else if (section.header.endsWith('dummy_service.dart')) {
+    } else if (section.header?.endsWith('dummy_service.dart') == true) {
       return false;
-    } else if (section.header.startsWith('SF:lib/vendor/')) {
+    } else if (section.header?.startsWith('SF:lib/vendor/') == true) {
       return false;
-    } else if (section.header.startsWith('SF:lib/util/locale')) {
+    } else if (section.header?.startsWith('SF:lib/util/locale') == true) {
       return false;
     }
     return true;
