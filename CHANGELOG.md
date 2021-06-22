@@ -1,4 +1,9 @@
-## 1.0.0 - 16-03-2020
+## 1.0.1 - 22-06-2021
+
+#Added
+- Pub.dev badge
+
+## 1.0.0 - 22-06-2021
 
 Initial release
 - Background location tracking
