@@ -6,7 +6,6 @@ import 'package:background_location_tracker/src/model/config/android_config.dart
 /// - loggingEnabled: false
 /// - androidConfig: AndroidConfig()
 class BackgroundLocationTrackerConfig {
-
   /// loggingEnabled will be used for dart & native logs.
   final bool loggingEnabled;
 

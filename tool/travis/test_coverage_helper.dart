@@ -4,7 +4,8 @@ const packageName = 'background_location_tracker';
 
 void main() {
   Logger.debug('====');
-  Logger.debug('First create a file with all other files imported so flutter test coverage uses all files');
+  Logger.debug(
+      'First create a file with all other files imported so flutter test coverage uses all files');
   Logger.debug('====');
   final testDir = Directory('test');
   if (!testDir.existsSync()) {

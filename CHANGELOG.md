@@ -1,10 +1,12 @@
-## 1.0.1 - 22-06-2021
+## 1.0.2 - 22-06-2021
+#Fixed
+- Formatting
 
+## 1.0.1 - 22-06-2021
 #Added
 - Pub.dev badge
 
 ## 1.0.0 - 22-06-2021
-
 Initial release
 - Background location tracking
 - Nullsafety

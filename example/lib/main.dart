@@ -7,7 +7,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:permission_handler/permission_handler.dart';
 
-void _backgroundCallback() => BackgroundLocationTrackerManager.handleBackgroundUpdated((data) async => Repo().update(data));
+void _backgroundCallback() =>
+    BackgroundLocationTrackerManager.handleBackgroundUpdated(
+        (data) async => Repo().update(data));
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -135,7 +137,8 @@ void sendNotification(String text) {
       requestSoundPermission: false,
     ),
   );
-  FlutterLocalNotificationsPlugin().initialize(settings, onSelectNotification: (data) async {
+  FlutterLocalNotificationsPlugin().initialize(settings,
+      onSelectNotification: (data) async {
     print('ON CLICK $data'); // ignore: avoid_print
   });
   FlutterLocalNotificationsPlugin().show(
