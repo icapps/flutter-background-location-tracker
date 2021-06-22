@@ -1,5 +1,6 @@
 name: background_location_tracker
-description: A new Flutter plugin that allows you to track the background location for Android & iOS
+description: A Flutter plugin that allows you to track the background location for Android & iOS
+repository: https://github.com/icapps/flutter-background-location-tracker
 version: 1.0.0
 
 environment:
