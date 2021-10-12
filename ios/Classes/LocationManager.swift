@@ -12,8 +12,9 @@ class LocationManager {
     
     private static var sharedLocationManager: CLLocationManager = {
         let manager = CLLocationManager()
-        manager.activityType = .automotiveNavigation
+        manager.activityType = SharedPrefsUtil.activityType()
         manager.desiredAccuracy = kCLLocationAccuracyBest
+        manager.distanceFilter = SharedPrefsUtil.distanceFilter()
         manager.pausesLocationUpdatesAutomatically = false
         if #available(iOS 11, *) {
             manager.showsBackgroundLocationIndicator = true

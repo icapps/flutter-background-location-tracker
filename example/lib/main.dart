@@ -18,6 +18,11 @@ Future<void> main() async {
     config: const BackgroundLocationTrackerConfig(
       androidConfig: AndroidConfig(
         notificationIcon: 'explore',
+        trackingInterval: Duration(seconds: 4),
+      ),
+      iOSConfig: IOSConfig(
+        activityType: ActivityType.FITNESS,
+        distanceFilterMeters: 5,
       ),
     ),
   );
@@ -63,26 +68,24 @@ class _MyAppState extends State<MyApp> {
                 child: const Text('Send notification'),
                 onPressed: () => sendNotification('Hallokes'),
               ),
-              if (isTracking) ...[
-                MaterialButton(
-                  child: const Text('Start Tracking'),
-                  onPressed: isTracking
-                      ? null
-                      : () {
-                          BackgroundLocationTrackerManager.startTracking();
-                          setState(() => isTracking = true);
-                        },
-                ),
-                MaterialButton(
-                  child: const Text('Stop Tracking'),
-                  onPressed: isTracking
-                      ? () {
-                          BackgroundLocationTrackerManager.stopTracking();
-                          setState(() => isTracking = false);
-                        }
-                      : null,
-                ),
-              ],
+              MaterialButton(
+                child: const Text('Start Tracking'),
+                onPressed: isTracking
+                    ? null
+                    : () {
+                        BackgroundLocationTrackerManager.startTracking();
+                        setState(() => isTracking = true);
+                      },
+              ),
+              MaterialButton(
+                child: const Text('Stop Tracking'),
+                onPressed: isTracking
+                    ? () {
+                        BackgroundLocationTrackerManager.stopTracking();
+                        setState(() => isTracking = false);
+                      }
+                    : null,
+              ),
             ],
           ),
         ),

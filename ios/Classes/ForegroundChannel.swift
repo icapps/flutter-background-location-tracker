@@ -49,13 +49,41 @@ public class ForegroundChannel : NSObject {
     private func initialize(call: FlutterMethodCall, result: @escaping FlutterResult ) {
         let callBackHandleKey = "callback_handle"
         let loggingEnabledKey = "logging_enabled"
+        let activityTypeKey = "ios_activity_type"
+        let distanceFilterKey = "ios_distance_filter"
         let map = call.arguments as? [String: Any]
         guard let callbackDispatcherHandle = map?[callBackHandleKey] else {
             result(false)
             return
         }
+        
+        
         let loggingEnabled: Bool = map?[loggingEnabledKey] as? Bool ?? false
         SharedPrefsUtil.saveLoggingEnabled(loggingEnabled)
+        
+        let activityType: CLActivityType
+        switch (map?[activityTypeKey] as? String ?? "AUTOMOTIVE") {
+        case "OTHER":
+            activityType = .other
+        case "FITNESS":
+            activityType = .fitness
+        case "NAVIGATION":
+            activityType = .otherNavigation
+        case "AIRBORNE":
+            if #available(iOS 12.0, *) {
+                activityType = .airborne
+            } else {
+                activityType = .automotiveNavigation
+            }
+        case "AUTOMOTIVE":
+            activityType = .automotiveNavigation
+        default:
+            activityType = .automotiveNavigation
+        }
+        
+        SharedPrefsUtil.saveActivityType(activityType)
+        SharedPrefsUtil.saveDistanceFilter(map?[distanceFilterKey] as? Double ?? kCLDistanceFilterNone)
+        
         SharedPrefsUtil.saveCallBackDispatcherHandleKey(callBackHandle: callbackDispatcherHandle as? Int64)
         SharedPrefsUtil.saveIsTracking(isTracking)
         result(true)

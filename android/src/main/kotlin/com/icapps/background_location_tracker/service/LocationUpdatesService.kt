@@ -204,10 +204,11 @@ internal class LocationUpdatesService : Service() {
      * Sets the location request parameters.
      */
     private fun createLocationRequest() {
+        val interval = SharedPrefsUtil.trackingInterval(this)
         locationRequest = LocationRequest()
         locationRequest?.let {
-            it.interval = UPDATE_INTERVAL_IN_MILLISECONDS
-            it.fastestInterval = FASTEST_UPDATE_INTERVAL_IN_MILLISECONDS
+            it.interval = interval
+            it.fastestInterval = interval / 2
             it.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
         }
     }
@@ -246,16 +247,5 @@ internal class LocationUpdatesService : Service() {
         const val ACTION_BROADCAST = "$PACKAGE_NAME.broadcast"
         const val EXTRA_LOCATION = "$PACKAGE_NAME.location"
         const val EXTRA_STARTED_FROM_NOTIFICATION = "$PACKAGE_NAME.started_from_notification"
-
-        /**
-         * The desired interval for location updates. Inexact. Updates may be more or less frequent.
-         */
-        private const val UPDATE_INTERVAL_IN_MILLISECONDS: Long = 10000
-
-        /**
-         * The fastest rate for active location updates. Updates will never be more frequent
-         * than this value.
-         */
-        private const val FASTEST_UPDATE_INTERVAL_IN_MILLISECONDS = UPDATE_INTERVAL_IN_MILLISECONDS / 2
     }
 }
