@@ -18,6 +18,7 @@ Future<void> main() async {
     config: const BackgroundLocationTrackerConfig(
       androidConfig: AndroidConfig(
         notificationIcon: 'explore',
+        trackingInterval: Duration(seconds: 4),
       ),
       iOSConfig: IOSConfig(
         activityType: ActivityType.FITNESS,
