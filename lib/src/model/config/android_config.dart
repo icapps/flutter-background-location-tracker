@@ -1,3 +1,5 @@
+import 'package:flutter/foundation.dart';
+
 /// Android configuration that will only be used by the Android implementation
 ///
 /// Default Values:
@@ -7,8 +9,10 @@
 /// - cancelTrackingActionText: "Stop Tracking."
 /// - enableNotificationLocationUpdates: false
 /// - enableCancelTrackingAction: true
+/// - trackingInterval: 10 seconds
+@immutable
 class AndroidConfig {
-  // The name that will be used for the permanent notification channel.
+  /// The name that will be used for the permanent notification channel.
   final String channelName;
 
   ///The message that will be shown in the permanent notification
@@ -26,6 +30,11 @@ class AndroidConfig {
   /// This option will show a cancel tracking action in the notification
   final bool enableCancelTrackingAction;
 
+  /// The interval in which location updates are requested to be delivered.
+  /// This is a request to the system, not a guarantee
+  /// Defaults to an update every 10 seconds
+  final Duration trackingInterval;
+
   const AndroidConfig({
     this.channelName = 'Background Tracking',
     this.notificationBody = 'Background tracking active. Tap to open.',
@@ -33,5 +42,6 @@ class AndroidConfig {
     this.enableNotificationLocationUpdates = false,
     this.cancelTrackingActionText = 'Stop Tracking',
     this.enableCancelTrackingAction = true,
+    this.trackingInterval = const Duration(seconds: 10),
   });
 }

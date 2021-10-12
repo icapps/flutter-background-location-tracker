@@ -1,4 +1,5 @@
 import 'package:background_location_tracker/src/model/config/android_config.dart';
+import 'package:background_location_tracker/src/model/config/ios_config.dart';
 
 /// BackgroundLocationTrackerConfig will be used to setup the plugin
 ///
@@ -10,11 +11,14 @@ class BackgroundLocationTrackerConfig {
   final bool loggingEnabled;
 
   /// androidConfig will only be used by the android implementation.
-  /// By default only
   final AndroidConfig androidConfig;
+
+  /// iOSConfig will only be used by the iOS implementation
+  final IOSConfig iOSConfig;
 
   const BackgroundLocationTrackerConfig({
     this.loggingEnabled = false,
     this.androidConfig = const AndroidConfig(),
+    this.iOSConfig = const IOSConfig(),
   });
 }

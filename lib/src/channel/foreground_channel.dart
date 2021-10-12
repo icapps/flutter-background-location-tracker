@@ -1,6 +1,8 @@
 import 'dart:ui';
+
 import 'package:background_location_tracker/src/model/config/android_config.dart';
 import 'package:background_location_tracker/src/model/config/background_location_tracker_config.dart';
+import 'package:background_location_tracker/src/model/config/ios_config.dart';
 import 'package:flutter/services.dart';
 
 class ForegroundChannel {
@@ -23,6 +25,8 @@ class ForegroundChannel {
       {
         'callback_handle': handle,
         'logging_enabled': config.loggingEnabled,
+        'android_update_interval_msec':
+            config.androidConfig.trackingInterval.inMilliseconds,
         'android_config_channel_name': config.androidConfig.channelName,
         'android_config_notification_body':
             config.androidConfig.notificationBody,
@@ -34,6 +38,8 @@ class ForegroundChannel {
             config.androidConfig.cancelTrackingActionText,
         'android_config_enable_cancel_tracking_action':
             config.androidConfig.enableCancelTrackingAction,
+        'ios_activity_type': _activityTypeString(config.iOSConfig.activityType),
+        'ios_distance_filter': config.iOSConfig.distanceFilterMeters,
       },
     );
   }
@@ -61,4 +67,19 @@ class ForegroundChannel {
 
   static Future<void> stopTracking() =>
       _foregroundChannel.invokeMethod('stopTracking');
+}
+
+String _activityTypeString(ActivityType activityType) {
+  switch (activityType) {
+    case ActivityType.OTHER:
+      return 'OTHER';
+    case ActivityType.AUTOMOTIVE:
+      return 'AUTOMOTIVE';
+    case ActivityType.FITNESS:
+      return 'FITNESS';
+    case ActivityType.NAVIGATION:
+      return 'NAVIGATION';
+    case ActivityType.AIRBORNE:
+      return 'AIRBORNE';
+  }
 }

@@ -30,6 +30,7 @@ internal class MethodCallHelper(private val ctx: Context) : MethodChannel.Method
     private fun initialize(ctx: Context, call: MethodCall, result: MethodChannel.Result) {
         val callbackHandleKey = "callback_handle"
         val loggingEnabledKey = "logging_enabled"
+        val trackingIntervalKey = "android_update_interval_msec"
         val channelNameKey = "android_config_channel_name"
         val notificationBodyKey = "android_config_notification_body"
         val notificationIconKey = "android_config_notification_icon"
@@ -43,7 +44,8 @@ internal class MethodCallHelper(private val ctx: Context) : MethodChannel.Method
                 notificationBodyKey,
                 enableNotificationLocationUpdatesKey,
                 cancelTrackingActionTextKey,
-                enableCancelTrackingActionKey
+                enableCancelTrackingActionKey,
+                trackingIntervalKey
         )
         if (!call.checkRequiredFields(keys, result)) return
         val callbackHandle = call.argument<Long>(callbackHandleKey)!!
@@ -54,7 +56,9 @@ internal class MethodCallHelper(private val ctx: Context) : MethodChannel.Method
         val enableNotificationLocationUpdates = call.argument<Boolean>(enableNotificationLocationUpdatesKey)!!
         val cancelTrackingActionText = call.argument<String>(cancelTrackingActionTextKey)!!
         val enableCancelTrackingAction = call.argument<Boolean>(enableCancelTrackingActionKey)!!
+        val trackingInterval = call.argument<Long>(trackingIntervalKey)!!
         SharedPrefsUtil.saveLoggingEnabled(ctx, loggingEnabled)
+        SharedPrefsUtil.saveTrackingInterval(ctx, trackingInterval)
         Logger.enabled = loggingEnabled
         NotificationUtil.createNotificationChannels(ctx, channelName)
         SharedPrefsUtil.saveCallbackDispatcherHandleKey(ctx, callbackHandle)
@@ -70,20 +74,19 @@ internal class MethodCallHelper(private val ctx: Context) : MethodChannel.Method
         val enableNotificationLocationUpdatesKey = "android_config_enable_notification_location_updates"
         val enableCancelTrackingActionKey = "android_config_enable_cancel_tracking_action"
         val cancelTrackingActionTextKey = "android_config_cancel_tracking_action_text"
-        val keys = listOf(
-                notificationBodyKey,
-                enableNotificationLocationUpdatesKey,
-                cancelTrackingActionTextKey,
-                enableCancelTrackingActionKey
-        )
-        if (!call.checkRequiredFields(keys, result)) return
-        val notificationBody = call.argument<String>(notificationBodyKey)!!
+
+        val notificationBody = call.argument<String>(notificationBodyKey)
         val notificationIcon = call.argument<String>(notificationIconKey)
-        val enableNotificationLocationUpdates = call.argument<Boolean>(enableNotificationLocationUpdatesKey)!!
-        val cancelTrackingActionText = call.argument<String>(cancelTrackingActionTextKey)!!
-        val enableCancelTrackingAction = call.argument<Boolean>(enableCancelTrackingActionKey)!!
-        if (notificationBody != null && notificationIcon != null && cancelTrackingActionText != null && enableNotificationLocationUpdates != null && enableCancelTrackingAction != null) {
-            SharedPrefsUtil.saveNotificationConfig(ctx, notificationBody, notificationIcon, cancelTrackingActionText, enableNotificationLocationUpdates, enableCancelTrackingAction)
+        val enableNotificationLocationUpdates = call.argument<Boolean>(enableNotificationLocationUpdatesKey)
+        val cancelTrackingActionText = call.argument<String>(cancelTrackingActionTextKey)
+        val enableCancelTrackingAction = call.argument<Boolean>(enableCancelTrackingActionKey)
+        if (notificationBody != null || notificationIcon != null || cancelTrackingActionText != null
+                || enableNotificationLocationUpdates != null || enableCancelTrackingAction != null) {
+            SharedPrefsUtil.saveNotificationConfig(ctx, notificationBody ?: SharedPrefsUtil.getNotificationBody(ctx),
+                                                   notificationIcon ?: SharedPrefsUtil.getNotificationIcon(ctx),
+                                                   cancelTrackingActionText ?: SharedPrefsUtil.getCancelTrackingActionText(ctx),
+                                                   enableNotificationLocationUpdates ?: SharedPrefsUtil.isNotificationLocationUpdatesEnabled(ctx),
+                                                   enableCancelTrackingAction ?: SharedPrefsUtil.isCancelTrackingActionEnabled(ctx))
         }
         serviceConnection.service?.startTracking()
         result.success(true)
