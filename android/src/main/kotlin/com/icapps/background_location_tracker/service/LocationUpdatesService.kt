@@ -12,6 +12,7 @@ import android.os.Handler
 import android.os.HandlerThread
 import android.os.IBinder
 import android.os.Looper
+import android.os.PowerManager
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationCallback
@@ -21,8 +22,8 @@ import com.google.android.gms.location.LocationServices
 import com.icapps.background_location_tracker.flutter.FlutterBackgroundManager
 import com.icapps.background_location_tracker.utils.ActivityCounter
 import com.icapps.background_location_tracker.utils.Logger
-import com.icapps.background_location_tracker.utils.SharedPrefsUtil
 import com.icapps.background_location_tracker.utils.NotificationUtil
+import com.icapps.background_location_tracker.utils.SharedPrefsUtil
 
 internal class LocationUpdatesService : Service() {
     private val binder: IBinder = LocalBinder()
@@ -50,6 +51,8 @@ internal class LocationUpdatesService : Service() {
     private var locationCallback: LocationCallback? = null
     private var serviceHandler: Handler? = null
 
+    private var wakeLock: PowerManager.WakeLock? = null
+
     /**
      * The current location.
      */
@@ -64,6 +67,7 @@ internal class LocationUpdatesService : Service() {
                 onNewLocation(locationResult.lastLocation)
             }
         }
+        wakeLock = (getSystemService(Context.POWER_SERVICE) as PowerManager).newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "mijnmooiestraat:location_updates")
         createLocationRequest()
         getLastLocation()
         val handlerThread = HandlerThread(TAG)
@@ -78,7 +82,7 @@ internal class LocationUpdatesService : Service() {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         Logger.debug(TAG, "Service started")
         val startedFromNotification = intent?.getBooleanExtra(EXTRA_STARTED_FROM_NOTIFICATION,
-                false) ?: false
+                                                              false) ?: false
 
         // We got here because the user decided to remove location updates from the notification.
         if (startedFromNotification) {
@@ -122,6 +126,9 @@ internal class LocationUpdatesService : Service() {
         // do nothing. Otherwise, we make this service a foreground service.
         if (!changingConfiguration && SharedPrefsUtil.isTracking(this)) {
             Logger.debug(TAG, "Starting foreground service")
+            if (wakeLock?.isHeld != true) {
+                wakeLock?.acquire(24 * 60 * 60 * 1000L)
+            }
             NotificationUtil.startForeground(this, location)
         }
         return true // Ensures onRebind() is called when a client re-binds.
@@ -130,6 +137,9 @@ internal class LocationUpdatesService : Service() {
     override fun onDestroy() {
         Logger.debug(TAG, "Destroy")
         serviceHandler!!.removeCallbacksAndMessages(null)
+        if (wakeLock?.isHeld == true) {
+            wakeLock?.release()
+        }
     }
 
     /**
@@ -137,6 +147,8 @@ internal class LocationUpdatesService : Service() {
      * [SecurityException].
      */
     fun startTracking() {
+        wakeLock?.acquire(24 * 60 * 60 * 1000L /*24 hours max */)
+
         Logger.debug(TAG, "Requesting location updates")
         SharedPrefsUtil.saveIsTracking(this, true)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && ActivityCounter.isAppInBackground()) {
@@ -148,6 +160,9 @@ internal class LocationUpdatesService : Service() {
         try {
             fusedLocationClient?.requestLocationUpdates(locationRequest, locationCallback, Looper.myLooper())
         } catch (unlikely: SecurityException) {
+            if (wakeLock?.isHeld == true) {
+                wakeLock?.release()
+            }
             SharedPrefsUtil.saveIsTracking(this, false)
             Logger.error(TAG, "Lost location permission. Could not request updates. $unlikely")
         }
@@ -158,6 +173,9 @@ internal class LocationUpdatesService : Service() {
      * [SecurityException].
      */
     fun stopTracking() {
+        if (wakeLock?.isHeld == true) {
+            wakeLock?.release();
+        }
         Logger.debug(TAG, "Removing location updates")
         try {
             fusedLocationClient?.removeLocationUpdates(locationCallback)
