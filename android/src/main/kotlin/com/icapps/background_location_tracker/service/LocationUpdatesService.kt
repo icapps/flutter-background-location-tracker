@@ -49,7 +49,6 @@ internal class LocationUpdatesService : Service() {
      * Callback for changes in location.
      */
     private var locationCallback: LocationCallback? = null
-    private var serviceHandler: Handler? = null
 
     private var wakeLock: PowerManager.WakeLock? = null
 
@@ -70,9 +69,6 @@ internal class LocationUpdatesService : Service() {
         wakeLock = (getSystemService(Context.POWER_SERVICE) as PowerManager).newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "mijnmooiestraat:location_updates")
         createLocationRequest()
         getLastLocation()
-        val handlerThread = HandlerThread(TAG)
-        handlerThread.start()
-        serviceHandler = Handler(handlerThread.looper)
 
         if (SharedPrefsUtil.isTracking(this)) {
             startTracking()
@@ -81,14 +77,17 @@ internal class LocationUpdatesService : Service() {
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         Logger.debug(TAG, "Service started")
-        val startedFromNotification = intent?.getBooleanExtra(EXTRA_STARTED_FROM_NOTIFICATION,
-                                                              false) ?: false
+        val startedFromNotification = intent?.getBooleanExtra(
+            EXTRA_STARTED_FROM_NOTIFICATION,
+            false
+        ) ?: false
 
         // We got here because the user decided to remove location updates from the notification.
         if (startedFromNotification) {
             stopTracking()
             stopSelf()
         }
+
         // Tells the system to try to recreate the service after it has been killed.
         return START_STICKY
     }
@@ -136,7 +135,6 @@ internal class LocationUpdatesService : Service() {
 
     override fun onDestroy() {
         Logger.debug(TAG, "Destroy")
-        serviceHandler!!.removeCallbacksAndMessages(null)
         if (wakeLock?.isHeld == true) {
             wakeLock?.release()
         }
