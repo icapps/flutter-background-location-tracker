@@ -19,6 +19,7 @@ Future<void> main() async {
       androidConfig: AndroidConfig(
         notificationIcon: 'explore',
         trackingInterval: Duration(seconds: 4),
+        distanceFilterMeters: 5,
       ),
       iOSConfig: IOSConfig(
         activityType: ActivityType.FITNESS,

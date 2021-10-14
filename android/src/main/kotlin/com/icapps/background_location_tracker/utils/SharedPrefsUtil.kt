@@ -9,6 +9,7 @@ internal object SharedPrefsUtil {
     private const val KEY_IS_TRACKING = "background.location.tracker.manager.IS_TRACKING"
     private const val KEY_LOGGING_ENABED = "background.location.tracker.manager.LOGGIN_ENABLED"
     private const val KEY_TRACKING_INTERVAL = "background.location.tracker.manager.TRACKING_INTERVAL"
+    private const val KEY_DISTANCE_FILTER = "background.location.tracker.manager.DISTANCE_FILTER"
 
     private const val KEY_NOTIFICATION_BODY = "background.location.tracker.manager.NOTIFICATION_BODY"
     private const val KEY_NOTIFICATION_ICON = "background.location.tracker.manager.NOTIFICATION_ICON"
@@ -52,9 +53,18 @@ internal object SharedPrefsUtil {
                 .apply()
     }
 
+    fun saveDistanceFilter(ctx: Context, filter: Float) {
+        ctx.prefs()
+            .edit()
+            .putFloat(KEY_DISTANCE_FILTER, filter)
+            .apply()
+    }
+
     fun isLoggingEnabled(ctx: Context): Boolean = ctx.prefs().getBoolean(KEY_LOGGING_ENABED, false)
 
     fun trackingInterval(ctx: Context): Long = ctx.prefs().getLong(KEY_TRACKING_INTERVAL, 10000)
+
+    fun distanceFilter(ctx: Context) : Float = ctx.prefs().getFloat(KEY_DISTANCE_FILTER, 0.0f)
 
     //NotificationConfig
     fun saveNotificationConfig(ctx: Context, notificationBody: String, notificationIcon: String?, cancelTrackingActionText: String, enableNotificationLocationUpdates: Boolean, enableCancelTrackingAction: Boolean) {

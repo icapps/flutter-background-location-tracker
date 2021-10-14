@@ -57,8 +57,10 @@ internal class MethodCallHelper(private val ctx: Context) : MethodChannel.Method
         val cancelTrackingActionText = call.argument<String>(cancelTrackingActionTextKey)!!
         val enableCancelTrackingAction = call.argument<Boolean>(enableCancelTrackingActionKey)!!
         val trackingInterval = call.argument<Long>(trackingIntervalKey)!!
+        val distanceFilter = (call.argument<Double>(trackingIntervalKey) ?: 0.0).toFloat()
         SharedPrefsUtil.saveLoggingEnabled(ctx, loggingEnabled)
         SharedPrefsUtil.saveTrackingInterval(ctx, trackingInterval)
+        SharedPrefsUtil.saveDistanceFilter(ctx, distanceFilter)
         Logger.enabled = loggingEnabled
         NotificationUtil.createNotificationChannels(ctx, channelName)
         SharedPrefsUtil.saveCallbackDispatcherHandleKey(ctx, callbackHandle)
