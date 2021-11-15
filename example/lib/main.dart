@@ -16,6 +16,7 @@ Future<void> main() async {
   await BackgroundLocationTrackerManager.initialize(
     _backgroundCallback,
     config: const BackgroundLocationTrackerConfig(
+      loggingEnabled: true,
       androidConfig: AndroidConfig(
         notificationIcon: 'explore',
         trackingInterval: Duration(seconds: 4),
@@ -24,6 +25,7 @@ Future<void> main() async {
       iOSConfig: IOSConfig(
         activityType: ActivityType.FITNESS,
         distanceFilterMeters: 5,
+        restartAfterKill: true,
       ),
     ),
   );

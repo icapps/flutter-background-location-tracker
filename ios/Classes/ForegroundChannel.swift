@@ -51,6 +51,7 @@ public class ForegroundChannel : NSObject {
         let loggingEnabledKey = "logging_enabled"
         let activityTypeKey = "ios_activity_type"
         let distanceFilterKey = "ios_distance_filter"
+        let restartAfterKillKey = "ios_restart_after_kill"
         let map = call.arguments as? [String: Any]
         guard let callbackDispatcherHandle = map?[callBackHandleKey] else {
             result(false)
@@ -60,6 +61,7 @@ public class ForegroundChannel : NSObject {
         
         let loggingEnabled: Bool = map?[loggingEnabledKey] as? Bool ?? false
         SharedPrefsUtil.saveLoggingEnabled(loggingEnabled)
+        SharedPrefsUtil.saveRestartAfterKillEnabled(map?[restartAfterKillKey] as? Bool ?? false)
         
         let activityType: CLActivityType
         switch (map?[activityTypeKey] as? String ?? "AUTOMOTIVE") {

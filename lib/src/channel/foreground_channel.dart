@@ -41,6 +41,7 @@ class ForegroundChannel {
         'android_distance_filter': config.androidConfig.distanceFilterMeters,
         'ios_activity_type': _activityTypeString(config.iOSConfig.activityType),
         'ios_distance_filter': config.iOSConfig.distanceFilterMeters,
+        'ios_restart_after_kill': config.iOSConfig.restartAfterKill,
       },
     );
   }
