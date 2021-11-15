@@ -1,0 +1,9 @@
+tool/
+.idea/
+test/
+example/.drat_tool/
+example/android/
+example/ios/
+build/
+.dart_tool/
+analysis_options.yaml
