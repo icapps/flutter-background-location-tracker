@@ -35,6 +35,10 @@ class AndroidConfig {
   /// Defaults to an update every 10 seconds
   final Duration trackingInterval;
 
+  /// The distance in meters that should be moved before updates are sent.
+  /// Defaults to no filter (null)
+  final double? distanceFilterMeters;
+
   const AndroidConfig({
     this.channelName = 'Background Tracking',
     this.notificationBody = 'Background tracking active. Tap to open.',
@@ -43,5 +47,6 @@ class AndroidConfig {
     this.cancelTrackingActionText = 'Stop Tracking',
     this.enableCancelTrackingAction = true,
     this.trackingInterval = const Duration(seconds: 10),
+    this.distanceFilterMeters,
   });
 }

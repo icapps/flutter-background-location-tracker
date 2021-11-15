@@ -10,6 +10,10 @@ class IOSConfig {
   /// The type of activity, default to [ActivityType.AUTOMOTIVE]
   final ActivityType activityType;
 
+  /// Restart the location tracker when the app is recreated
+  /// after it has been killed by the user. Defaults to false
+  final bool restartAfterKill;
+
   /// The distance in meters that should be moved before updates are sent.
   /// Defaults to no filter (null)
   final int? distanceFilterMeters;
@@ -17,6 +21,7 @@ class IOSConfig {
   const IOSConfig({
     this.activityType = ActivityType.AUTOMOTIVE,
     this.distanceFilterMeters,
+    this.restartAfterKill = false,
   });
 }
 

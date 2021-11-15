@@ -12,6 +12,7 @@ struct SharedPrefsUtil {
     
     private static let KEY_CALLBACK_HANDLER = "background.location.tracker.manager.CALLBACK_DISPATCHER_HANDLE_KEY"
     private static let KEY_IS_TRACKING = "background.location.tracker.manager.IS_TRACKING"
+    private static let KEY_IS_RESTART_AFTER_KILL = "background.location.tracker.manager.RESTART_AFTER_KILL"
     private static let KEY_LOGGING_ENABLED = "background.location.tracker.manager.LOGGIN_ENABLED"
     private static let KEY_DISTANCE_FILTER = "background.location.tracker.manager.DISTANCE_FILTER"
     private static let KEY_ACTIVITY_TYPE = "background.location.tracker.manager.KEY_ACTIVITY_TYPE"
@@ -36,6 +37,14 @@ struct SharedPrefsUtil {
     
     static func isTracking() -> Bool {
         return getValue(for: SharedPrefsUtil.KEY_IS_TRACKING) ?? false
+    }
+    
+    static func restartAfterKill() -> Bool {
+        return getValue(for: SharedPrefsUtil.KEY_IS_RESTART_AFTER_KILL) ?? false
+    }
+    
+    static func saveRestartAfterKillEnabled(_ isRestartEnabled: Bool) {
+        store(isRestartEnabled, key: SharedPrefsUtil.KEY_IS_RESTART_AFTER_KILL)
     }
     
     static func saveLoggingEnabled(_ isLoggingEnabled: Bool) {

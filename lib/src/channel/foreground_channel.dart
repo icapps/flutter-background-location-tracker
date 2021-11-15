@@ -38,8 +38,10 @@ class ForegroundChannel {
             config.androidConfig.cancelTrackingActionText,
         'android_config_enable_cancel_tracking_action':
             config.androidConfig.enableCancelTrackingAction,
+        'android_distance_filter': config.androidConfig.distanceFilterMeters,
         'ios_activity_type': _activityTypeString(config.iOSConfig.activityType),
         'ios_distance_filter': config.iOSConfig.distanceFilterMeters,
+        'ios_restart_after_kill': config.iOSConfig.restartAfterKill,
       },
     );
   }

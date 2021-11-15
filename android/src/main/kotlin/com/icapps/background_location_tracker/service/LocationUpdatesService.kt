@@ -8,8 +8,6 @@ import android.content.res.Configuration
 import android.location.Location
 import android.os.Binder
 import android.os.Build
-import android.os.Handler
-import android.os.HandlerThread
 import android.os.IBinder
 import android.os.Looper
 import android.os.PowerManager
@@ -221,11 +219,13 @@ internal class LocationUpdatesService : Service() {
      */
     private fun createLocationRequest() {
         val interval = SharedPrefsUtil.trackingInterval(this)
+        val distanceFilter = SharedPrefsUtil.distanceFilter(this)
         locationRequest = LocationRequest()
         locationRequest?.let {
             it.interval = interval
             it.fastestInterval = interval / 2
-            it.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
+            it.priority = LocationRequest.PRIORITY_HIGH_ACCURACY
+            it.setSmallestDisplacement(distanceFilter)
         }
     }
 
