@@ -3,6 +3,7 @@ package com.icapps.background_location_tracker.utils
 import android.app.Activity
 import android.app.Application
 import android.os.Bundle
+import android.util.Log
 import java.lang.ref.WeakReference
 
 object ActivityCounter : Application.ActivityLifecycleCallbacks {
@@ -33,7 +34,7 @@ object ActivityCounter : Application.ActivityLifecycleCallbacks {
 
     override fun onActivityStopped(activity: Activity) {}
     override fun onActivitySaveInstanceState(activity: Activity, outState: Bundle) {
-        TODO("Not yet implemented")
+        Log.e("onActivity", "activity")
     }
 
     override fun onActivityDestroyed(activity: Activity) {}

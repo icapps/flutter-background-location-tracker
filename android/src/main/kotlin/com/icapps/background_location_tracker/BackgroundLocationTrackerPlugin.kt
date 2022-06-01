@@ -4,6 +4,7 @@ import android.app.Activity
 import android.app.Application
 import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LifecycleRegistry
@@ -155,7 +156,7 @@ class BackgroundLocationTrackerPlugin : FlutterPlugin, MethodCallHandler, Activi
         }
 
         override fun onActivitySaveInstanceState(activity: Activity, outState: Bundle) {
-
+            Log.e("onActivity", "activity")
         }
         override fun onActivityDestroyed(activity: Activity) {
             if (activity.hashCode() != registrarActivityHashCode) {
