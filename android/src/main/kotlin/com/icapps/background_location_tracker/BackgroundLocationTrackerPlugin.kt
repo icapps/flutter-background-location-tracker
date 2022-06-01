@@ -154,7 +154,7 @@ class BackgroundLocationTrackerPlugin : FlutterPlugin, MethodCallHandler, Activi
             lifecycle.handleLifecycleEvent(Lifecycle.Event.ON_STOP)
         }
 
-        override fun onActivitySaveInstanceState(activity: Activity?, outState: Bundle?) {
+        override fun onActivitySaveInstanceState(activity: Activity, outState: Bundle) {
 
         }
         override fun onActivityDestroyed(activity: Activity) {

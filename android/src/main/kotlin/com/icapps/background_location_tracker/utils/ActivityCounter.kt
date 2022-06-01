@@ -32,5 +32,9 @@ object ActivityCounter : Application.ActivityLifecycleCallbacks {
     }
 
     override fun onActivityStopped(activity: Activity) {}
+    override fun onActivitySaveInstanceState(activity: Activity, outState: Bundle) {
+        TODO("Not yet implemented")
+    }
+
     override fun onActivityDestroyed(activity: Activity) {}
 }
