@@ -20,7 +20,7 @@ Future<void> main() async {
       androidConfig: AndroidConfig(
         notificationIcon: 'explore',
         trackingInterval: Duration(seconds: 4),
-        distanceFilterMeters: 5,
+        distanceFilterMeters: 0,
       ),
       iOSConfig: IOSConfig(
         activityType: ActivityType.FITNESS,
@@ -128,7 +128,7 @@ class Repo {
   factory Repo() => _instance ??= Repo._();
 
   void update(BackgroundLocationUpdateData data) {
-    final text = 'Location Update: Lat: ${data.lat} Lon: ${data.lon}';
+    final text = 'Location Update: Lat: ${data.lat} Lon: ${data.lon} accuracy:${data.accuracy} date:${data.date}';
     print(text); // ignore: avoid_print
     sendNotification(text);
   }

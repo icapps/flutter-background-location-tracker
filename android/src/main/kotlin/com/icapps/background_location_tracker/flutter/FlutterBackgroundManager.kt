@@ -51,6 +51,8 @@ internal object FlutterBackgroundManager {
         val data = mutableMapOf<String, Any>()
         data["lat"] = location.latitude
         data["lon"] = location.longitude
+        data["accuracy"]= location.accuracy
+        data["date"] = location.time.toString()
         data["logging_enabled"] = SharedPrefsUtil.isLoggingEnabled(ctx)
         channel.invokeMethod("onLocationUpdate", data, object : MethodChannel.Result {
             override fun success(result: Any?) {
