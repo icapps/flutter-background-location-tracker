@@ -47,9 +47,9 @@ internal object NotificationUtil {
     private fun getNotification(context: Context, location: Location?): Notification {
         val intent = Intent(context, LocationUpdatesService::class.java)
         intent.putExtra(LocationUpdatesService.EXTRA_STARTED_FROM_NOTIFICATION, true)
-        val cancelTrackingIntent = PendingIntent.getService(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT)
+        val cancelTrackingIntent = PendingIntent.getService(context, 0, intent, PendingIntent.FLAG_IMMUTABLE)
 
-        val clickPendingIntent = PendingIntent.getActivity(context, 0, context.packageManager.getLaunchIntentForPackage(context.packageName), 0)
+        val clickPendingIntent = PendingIntent.getActivity(context, 0, context.packageManager.getLaunchIntentForPackage(context.packageName), PendingIntent.FLAG_IMMUTABLE)
 
         val title = if (SharedPrefsUtil.isNotificationLocationUpdatesEnabled(context)) {
             String.format("Location Update: %s", DateFormat.getDateTimeInstance().format(Date()))

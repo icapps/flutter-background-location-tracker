@@ -152,7 +152,7 @@ void sendNotification(String text) {
     'Title',
     text,
     const NotificationDetails(
-      android: AndroidNotificationDetails('test_notification', 'Test', 'Test'),
+      android: AndroidNotificationDetails('test_notification', 'Test'),
       iOS: IOSNotificationDetails(),
     ),
   );
