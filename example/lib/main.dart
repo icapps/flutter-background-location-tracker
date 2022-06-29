@@ -128,7 +128,8 @@ class Repo {
   factory Repo() => _instance ??= Repo._();
 
   void update(BackgroundLocationUpdateData data) {
-    final text = 'Location Update: Lat: ${data.lat} Lon: ${data.lon} accuracy:${data.accuracy} date:${data.date}';
+    final text =
+        'Location Update: Lat: ${data.lat} Lon: ${data.lon} accuracy:${data.accuracy} date:${data.date}';
     print(text); // ignore: avoid_print
     sendNotification(text);
   }
