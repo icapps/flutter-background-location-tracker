@@ -58,7 +58,7 @@ internal object FlutterBackgroundManager {
                 engine.destroy()
             }
 
-            override fun error(errorCode: String?, errorMessage: String?, errorDetails: Any?) {
+            override fun error(errorCode: String, errorMessage: String?, errorDetails: Any?) {
                 Logger.debug("BackgroundManager", "Got error, destroy engine! $errorCode - $errorMessage : $errorDetails")
                 engine.destroy()
             }

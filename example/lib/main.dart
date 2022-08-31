@@ -102,7 +102,7 @@ class _MyAppState extends State<MyApp> {
   }
 
   Future<void> _requestLocationPermission() async {
-    final result = await Permission.locationAlways.request();
+    final result = await Permission.location.request();
     if (result == PermissionStatus.granted) {
       print('GRANTED'); // ignore: avoid_print
     } else {
@@ -152,7 +152,7 @@ void sendNotification(String text) {
     'Title',
     text,
     const NotificationDetails(
-      android: AndroidNotificationDetails('test_notification', 'Test', 'Test'),
+      android: AndroidNotificationDetails('test_notification', 'Test'),
       iOS: IOSNotificationDetails(),
     ),
   );
