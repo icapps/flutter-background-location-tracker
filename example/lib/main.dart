@@ -7,9 +7,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:permission_handler/permission_handler.dart';
 
-void _backgroundCallback() =>
-    BackgroundLocationTrackerManager.handleBackgroundUpdated(
-        (data) async => Repo().update(data));
+void _backgroundCallback() => BackgroundLocationTrackerManager.handleBackgroundUpdated(
+      (data) async => Repo().update(data),
+    );
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -62,11 +62,13 @@ class _MyAppState extends State<MyApp> {
                 child: const Text('Request location permission'),
                 onPressed: _requestLocationPermission,
               ),
-              if (Platform.isIOS)
-                MaterialButton(
-                  child: const Text('Request Notification permission'),
-                  onPressed: _requestNotificationPermission,
-                ),
+              if (Platform.isAndroid) ...[
+                const Text('Permission on android is only needed starting from sdk 33.'),
+              ],
+              MaterialButton(
+                child: const Text('Request Notification permission'),
+                onPressed: _requestNotificationPermission,
+              ),
               MaterialButton(
                 child: const Text('Send notification'),
                 onPressed: () => sendNotification('Hallokes'),
@@ -143,10 +145,12 @@ void sendNotification(String text) {
       requestSoundPermission: false,
     ),
   );
-  FlutterLocalNotificationsPlugin().initialize(settings,
-      onSelectNotification: (data) async {
-    print('ON CLICK $data'); // ignore: avoid_print
-  });
+  FlutterLocalNotificationsPlugin().initialize(
+    settings,
+    onSelectNotification: (data) async {
+      print('ON CLICK $data'); // ignore: avoid_print
+    },
+  );
   FlutterLocalNotificationsPlugin().show(
     Random().nextInt(9999),
     'Title',
