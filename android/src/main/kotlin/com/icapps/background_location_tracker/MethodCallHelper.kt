@@ -71,7 +71,7 @@ internal class MethodCallHelper(private val ctx: Context) : MethodChannel.Method
 
     private fun getLongArgumentByKey(call: MethodCall, key: String): Long? {
         return try {
-            call.argument<Int>(key)!!.toLong()
+            call.argument<Number>(key)!!.toLong()
         } catch (exception: ClassCastException) {
             call.argument(key)
         }
