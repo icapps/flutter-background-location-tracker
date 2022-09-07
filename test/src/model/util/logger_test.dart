@@ -1,4 +1,3 @@
-import 'package:background_location_tracker/background_location_tracker.dart';
 import 'package:background_location_tracker/src/util/logger.dart';
 import 'package:flutter_test/flutter_test.dart';
 
