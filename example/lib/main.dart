@@ -22,11 +22,11 @@ Future<void> main() async {
       androidConfig: AndroidConfig(
         notificationIcon: 'explore',
         trackingInterval: Duration(seconds: 4),
-        distanceFilterMeters: 0,
+        distanceFilterMeters: null,
       ),
       iOSConfig: IOSConfig(
         activityType: ActivityType.FITNESS,
-        distanceFilterMeters: 0,
+        distanceFilterMeters: null,
         restartAfterKill: true,
       ),
     ),
