@@ -2,25 +2,28 @@ package com.icapps.background_location_tracker.flutter
 
 import android.content.Context
 import android.location.Location
+import android.os.Handler
+import android.os.Looper
 import com.icapps.background_location_tracker.BackgroundLocationTrackerPlugin
 import com.icapps.background_location_tracker.utils.Logger
 import com.icapps.background_location_tracker.utils.SharedPrefsUtil
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.embedding.engine.dart.DartExecutor
+import io.flutter.embedding.engine.loader.FlutterLoader
 import io.flutter.embedding.engine.plugins.shim.ShimPluginRegistry
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.view.FlutterCallbackInformation
-import io.flutter.view.FlutterMain
 
 internal object FlutterBackgroundManager {
     private const val BACKGROUND_CHANNEL_NAME = "com.icapps.background_location_tracker/background_channel"
+
+    private val flutterLoader = FlutterLoader()
 
     private fun getInitializedFlutterEngine(ctx: Context): FlutterEngine {
         Logger.debug("BackgroundManager", "Creating new engine")
 
         val engine = FlutterEngine(ctx)
-        FlutterMain.ensureInitializationComplete(ctx, null)
         //Backwards compatibility with v1. We register all the user's plugins.
         BackgroundLocationTrackerPlugin.pluginRegistryCallback?.registerWith(ShimPluginRegistry(engine))
         return engine
@@ -41,10 +44,15 @@ internal object FlutterBackgroundManager {
             }
         }
 
-        val callbackHandle = SharedPrefsUtil.getCallbackHandle(ctx)
-        val callbackInfo = FlutterCallbackInformation.lookupCallbackInformation(callbackHandle)
-        val dartBundlePath = FlutterMain.findAppBundlePath()
-        engine.dartExecutor.executeDartCallback(DartExecutor.DartCallback(ctx.assets, dartBundlePath, callbackInfo))
+        if (!flutterLoader.initialized()) {
+            flutterLoader.startInitialization(ctx)
+        }
+        flutterLoader.ensureInitializationCompleteAsync(ctx, null, Handler(Looper.getMainLooper())) {
+            val callbackHandle = SharedPrefsUtil.getCallbackHandle(ctx)
+            val callbackInfo = FlutterCallbackInformation.lookupCallbackInformation(callbackHandle)
+            val dartBundlePath = flutterLoader.findAppBundlePath()
+            engine.dartExecutor.executeDartCallback(DartExecutor.DartCallback(ctx.assets, dartBundlePath, callbackInfo))
+        }
     }
 
     private fun handleInitialized(call: MethodCall, result: MethodChannel.Result, ctx: Context, channel: MethodChannel, location: Location, engine: FlutterEngine) {
