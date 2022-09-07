@@ -87,7 +87,8 @@ class _MyAppState extends State<MyApp> {
                     ),
                     MaterialButton(
                       child: const Text('Send notification'),
-                      onPressed: () => sendNotification('Hallokes'),
+                      onPressed: () =>
+                          sendNotification('Hello from another world'),
                     ),
                     MaterialButton(
                       child: const Text('Start Tracking'),
