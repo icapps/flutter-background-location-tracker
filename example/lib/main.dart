@@ -8,15 +8,17 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-void _backgroundCallback() =>
-    BackgroundLocationTrackerManager.handleBackgroundUpdated(
-      (data) async => Repo().update(data),
-    );
+@pragma('vm:entry-point')
+void backgroundCallback() {
+  BackgroundLocationTrackerManager.handleBackgroundUpdated(
+    (data) async => Repo().update(data),
+  );
+}
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await BackgroundLocationTrackerManager.initialize(
-    _backgroundCallback,
+    backgroundCallback,
     config: const BackgroundLocationTrackerConfig(
       loggingEnabled: true,
       androidConfig: AndroidConfig(
@@ -31,6 +33,7 @@ Future<void> main() async {
       ),
     ),
   );
+
   runApp(MyApp());
 }
 
