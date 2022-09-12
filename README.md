@@ -74,7 +74,7 @@ import background_location_tracker
 }
 ```
 
-## Dart implementation
+## Flutter implementation
 
 Make sure you set the `@pragma('vm:entry-point')` to make sure you can find the callback in release.
 

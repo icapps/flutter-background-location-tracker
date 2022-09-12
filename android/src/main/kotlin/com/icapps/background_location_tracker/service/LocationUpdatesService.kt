@@ -163,8 +163,8 @@ internal class LocationUpdatesService : Service() {
         } else {
             startService(Intent(applicationContext, LocationUpdatesService::class.java))
         }
-        val locationRequest = this.locationRequest ?: return
-        val locationCallback = this.locationCallback ?: return
+        val locationRequest = locationRequest ?: return
+        val locationCallback = locationCallback ?: return
         try {
             fusedLocationClient?.requestLocationUpdates(locationRequest, locationCallback, Looper.myLooper())
         } catch (unlikely: SecurityException) {
@@ -185,7 +185,7 @@ internal class LocationUpdatesService : Service() {
             wakeLock?.release();
         }
         Logger.debug(TAG, "Removing location updates")
-        val locationCallback = this.locationCallback ?: return
+        val locationCallback = locationCallback ?: return
         try {
             fusedLocationClient?.removeLocationUpdates(locationCallback)
             SharedPrefsUtil.saveIsTracking(this, false)
