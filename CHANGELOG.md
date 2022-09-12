@@ -1,3 +1,11 @@
+## 1.3.0 - 12-09-2022
+- Added support for android sdk 33
+- Updated dependencies
+- Updated kotlin
+- Fixed the breaking changes on the native android side
+- Updated the example project to save the background locations to shared prefs
+- Updated the example project & readme to use the `@pragma('vm:entry-point')` annotation
+
 ## 1.2.0 - 15-11-2021
 - Added iOS specific options to restart the tracking after killing the app
 - Added option to Android specific options to only get updates every x meters
