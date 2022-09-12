@@ -101,16 +101,16 @@ internal class LocationUpdatesService : Service() {
         // and binds with this service. The service should cease to be a foreground service
         // when that happens.
         Logger.debug(TAG, "OnBind")
-        stopForeground()
+        stopForegroundService()
         changingConfiguration = false
         return binder
     }
 
-    @Suppress("DEPRECATION")
-    private fun stopForeground() {
+    private fun stopForegroundService() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             stopForeground(STOP_FOREGROUND_REMOVE)
         } else {
+            @Suppress("DEPRECATION")
             stopForeground(true)
         }
     }
@@ -120,7 +120,7 @@ internal class LocationUpdatesService : Service() {
         // and binds once again with this service. The service should cease to be a foreground
         // service when that happens.
         Logger.debug(TAG, "OnRebind")
-        stopForeground()
+        stopForegroundService()
         changingConfiguration = false
         super.onRebind(intent)
     }

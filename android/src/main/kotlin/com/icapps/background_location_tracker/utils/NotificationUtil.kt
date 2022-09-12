@@ -50,15 +50,16 @@ internal object NotificationUtil {
         val intent = Intent(context, LocationUpdatesService::class.java)
         intent.putExtra(LocationUpdatesService.EXTRA_STARTED_FROM_NOTIFICATION, true)
         val cancelTrackingIntent = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            PendingIntent.getService(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
+            PendingIntent.getService(context, 0, intent, PendingIntent.FLAG_IMMUTABLE)
         } else {
+            @Suppress("UnspecifiedImmutableFlag")
             PendingIntent.getService(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT)
         }
 
         val clickPendingIntent = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             PendingIntent.getActivity(context, 0, context.packageManager.getLaunchIntentForPackage(context.packageName), PendingIntent.FLAG_IMMUTABLE)
         } else {
-            PendingIntent.getActivity(context, 0, context.packageManager.getLaunchIntentForPackage(context.packageName),0)
+            PendingIntent.getActivity(context, 0, context.packageManager.getLaunchIntentForPackage(context.packageName), 0)
         }
 
         val title = if (SharedPrefsUtil.isNotificationLocationUpdatesEnabled(context)) {
