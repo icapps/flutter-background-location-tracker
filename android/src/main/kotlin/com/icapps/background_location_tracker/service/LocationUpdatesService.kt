@@ -17,6 +17,7 @@ import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
+import com.google.android.gms.location.Priority
 import com.icapps.background_location_tracker.flutter.FlutterBackgroundManager
 import com.icapps.background_location_tracker.utils.ActivityCounter
 import com.icapps.background_location_tracker.utils.Logger
@@ -100,9 +101,18 @@ internal class LocationUpdatesService : Service() {
         // and binds with this service. The service should cease to be a foreground service
         // when that happens.
         Logger.debug(TAG, "OnBind")
-        stopForeground(true)
+        stopForegroundService()
         changingConfiguration = false
         return binder
+    }
+
+    private fun stopForegroundService() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            stopForeground(STOP_FOREGROUND_REMOVE)
+        } else {
+            @Suppress("DEPRECATION")
+            stopForeground(true)
+        }
     }
 
     override fun onRebind(intent: Intent) {
@@ -110,7 +120,7 @@ internal class LocationUpdatesService : Service() {
         // and binds once again with this service. The service should cease to be a foreground
         // service when that happens.
         Logger.debug(TAG, "OnRebind")
-        stopForeground(true)
+        stopForegroundService()
         changingConfiguration = false
         super.onRebind(intent)
     }
@@ -153,6 +163,8 @@ internal class LocationUpdatesService : Service() {
         } else {
             startService(Intent(applicationContext, LocationUpdatesService::class.java))
         }
+        val locationRequest = locationRequest ?: return
+        val locationCallback = locationCallback ?: return
         try {
             fusedLocationClient?.requestLocationUpdates(locationRequest, locationCallback, Looper.myLooper())
         } catch (unlikely: SecurityException) {
@@ -173,6 +185,7 @@ internal class LocationUpdatesService : Service() {
             wakeLock?.release();
         }
         Logger.debug(TAG, "Removing location updates")
+        val locationCallback = locationCallback ?: return
         try {
             fusedLocationClient?.removeLocationUpdates(locationCallback)
             SharedPrefsUtil.saveIsTracking(this, false)
@@ -197,7 +210,8 @@ internal class LocationUpdatesService : Service() {
         }
     }
 
-    private fun onNewLocation(location: Location) {
+    private fun onNewLocation(location: Location?) {
+        if (location == null) return;
         Logger.debug(TAG, "New location: $location")
         this.location = location
 
@@ -220,13 +234,11 @@ internal class LocationUpdatesService : Service() {
     private fun createLocationRequest() {
         val interval = SharedPrefsUtil.trackingInterval(this)
         val distanceFilter = SharedPrefsUtil.distanceFilter(this)
-        locationRequest = LocationRequest()
-        locationRequest?.let {
-            it.interval = interval
-            it.fastestInterval = interval / 2
-            it.priority = LocationRequest.PRIORITY_HIGH_ACCURACY
-            it.setSmallestDisplacement(distanceFilter)
-        }
+        locationRequest = LocationRequest.create()
+            .setInterval(interval)
+            .setFastestInterval(interval / 2)
+            .setPriority(Priority.PRIORITY_HIGH_ACCURACY)
+            .setSmallestDisplacement(distanceFilter)
     }
 
     /**

@@ -1,11 +1,13 @@
 package com.icapps.background_location_tracker.utils
 
+import android.annotation.SuppressLint
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.content.pm.ServiceInfo
 import android.location.Location
 import android.os.Build
 import androidx.core.app.NotificationCompat
@@ -47,9 +49,18 @@ internal object NotificationUtil {
     private fun getNotification(context: Context, location: Location?): Notification {
         val intent = Intent(context, LocationUpdatesService::class.java)
         intent.putExtra(LocationUpdatesService.EXTRA_STARTED_FROM_NOTIFICATION, true)
-        val cancelTrackingIntent = PendingIntent.getService(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT)
+        val cancelTrackingIntent = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            PendingIntent.getService(context, 0, intent, PendingIntent.FLAG_IMMUTABLE)
+        } else {
+            @Suppress("UnspecifiedImmutableFlag")
+            PendingIntent.getService(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT)
+        }
 
-        val clickPendingIntent = PendingIntent.getActivity(context, 0, context.packageManager.getLaunchIntentForPackage(context.packageName), 0)
+        val clickPendingIntent = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            PendingIntent.getActivity(context, 0, context.packageManager.getLaunchIntentForPackage(context.packageName), PendingIntent.FLAG_IMMUTABLE)
+        } else {
+            PendingIntent.getActivity(context, 0, context.packageManager.getLaunchIntentForPackage(context.packageName), 0)
+        }
 
         val title = if (SharedPrefsUtil.isNotificationLocationUpdatesEnabled(context)) {
             String.format("Location Update: %s", DateFormat.getDateTimeInstance().format(Date()))
@@ -94,6 +105,10 @@ internal object NotificationUtil {
     }
 
     fun startForeground(service: LocationUpdatesService, location: Location?) {
-        service.startForeground(NOTIFICATION_ID, getNotification(service, location))
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            service.startForeground(NOTIFICATION_ID, getNotification(service, location), ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION)
+        } else {
+            service.startForeground(NOTIFICATION_ID, getNotification(service, location))
+        }
     }
 }

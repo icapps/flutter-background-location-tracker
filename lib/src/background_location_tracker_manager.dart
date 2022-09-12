@@ -3,8 +3,6 @@ import 'dart:async';
 import 'package:background_location_tracker/background_location_tracker.dart';
 import 'package:background_location_tracker/src/channel/background_channel.dart';
 import 'package:background_location_tracker/src/channel/foreground_channel.dart';
-import 'package:background_location_tracker/src/model/background_location_update_data.dart';
-import 'package:background_location_tracker/src/model/config/background_location_tracker_config.dart';
 import 'package:background_location_tracker/src/util/logger.dart';
 
 typedef LocationUpdateCallback = Future<void> Function(

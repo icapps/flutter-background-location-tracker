@@ -10,8 +10,9 @@ dependencies:
     path: ../
   flutter:
     sdk: flutter
-  flutter_local_notifications: ^5.0.0-nullsafety.1
-  permission_handler: ^6.1.0
+  flutter_local_notifications: ^9.9.0
+  permission_handler: ^10.0.0
+  shared_preferences: ^2.0.15
 
 dev_dependencies:
   flutter_test:

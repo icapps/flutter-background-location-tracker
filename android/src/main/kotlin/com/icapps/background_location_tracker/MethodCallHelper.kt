@@ -49,7 +49,7 @@ internal class MethodCallHelper(private val ctx: Context) : MethodChannel.Method
                 trackingIntervalKey
         )
         if (!call.checkRequiredFields(keys, result)) return
-        val callbackHandle = call.argument<Long>(callbackHandleKey)!!
+        val callbackHandle = getLongArgumentByKey(call, callbackHandleKey)!!
         val loggingEnabled = call.argument<Boolean>(loggingEnabledKey)!!
         val channelName = call.argument<String>(channelNameKey)!!
         val notificationBody = call.argument<String>(notificationBodyKey)!!
@@ -57,7 +57,7 @@ internal class MethodCallHelper(private val ctx: Context) : MethodChannel.Method
         val enableNotificationLocationUpdates = call.argument<Boolean>(enableNotificationLocationUpdatesKey)!!
         val cancelTrackingActionText = call.argument<String>(cancelTrackingActionTextKey)!!
         val enableCancelTrackingAction = call.argument<Boolean>(enableCancelTrackingActionKey)!!
-        val trackingInterval = call.argument<Long>(trackingIntervalKey)!!
+        val trackingInterval = getLongArgumentByKey(call, trackingIntervalKey)!!
         val distanceFilter = (call.argument<Double>(distanceFilterKey) ?: 0.0).toFloat()
         SharedPrefsUtil.saveLoggingEnabled(ctx, loggingEnabled)
         SharedPrefsUtil.saveTrackingInterval(ctx, trackingInterval)
@@ -67,6 +67,14 @@ internal class MethodCallHelper(private val ctx: Context) : MethodChannel.Method
         SharedPrefsUtil.saveCallbackDispatcherHandleKey(ctx, callbackHandle)
         SharedPrefsUtil.saveNotificationConfig(ctx, notificationBody, notificationIcon, cancelTrackingActionText, enableNotificationLocationUpdates, enableCancelTrackingAction)
         result.success(true)
+    }
+
+    private fun getLongArgumentByKey(call: MethodCall, key: String): Long? {
+        return try {
+            call.argument<Number>(key)!!.toLong()
+        } catch (exception: ClassCastException) {
+            call.argument(key)
+        }
     }
 
     private fun isTracking(ctx: Context, call: MethodCall, result: MethodChannel.Result) = result.success(SharedPrefsUtil.isTracking(ctx))

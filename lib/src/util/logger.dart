@@ -1,8 +1,9 @@
 class BackgroundLocationTrackerLogger {
+  static var printHandler = print;
   static var enableLogging = false;
 
   static void log(Object value) {
     // ignore: avoid_print
-    if (enableLogging) print(value);
+    if (enableLogging) printHandler(value);
   }
 }

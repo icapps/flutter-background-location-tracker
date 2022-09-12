@@ -74,8 +74,42 @@ import background_location_tracker
 }
 ```
 
+## Flutter implementation
 
-FAQ:
+Make sure you set the `@pragma('vm:entry-point')` to make sure you can find the callback in release.
+
+```
+@pragma('vm:entry-point')
+void backgroundCallback() {
+  BackgroundLocationTrackerManager.handleBackgroundUpdated(
+    (data) async => Repo().update(data),
+  );
+}
+
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await BackgroundLocationTrackerManager.initialize(
+    backgroundCallback,
+    config: const BackgroundLocationTrackerConfig(
+      loggingEnabled: true,
+      androidConfig: AndroidConfig(
+        notificationIcon: 'explore',
+        trackingInterval: Duration(seconds: 4),
+        distanceFilterMeters: null,
+      ),
+      iOSConfig: IOSConfig(
+        activityType: ActivityType.FITNESS,
+        distanceFilterMeters: null,
+        restartAfterKill: true,
+      ),
+    ),
+  );
+
+  runApp(MyApp());
+}
+```
+
+# FAQ:
 
 #### I get a Unhandled Exception: MissingPluginException(No implementation found for method .... on channel ...)
 
