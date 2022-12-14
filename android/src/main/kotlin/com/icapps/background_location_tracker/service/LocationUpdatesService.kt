@@ -23,6 +23,10 @@ import com.icapps.background_location_tracker.utils.ActivityCounter
 import com.icapps.background_location_tracker.utils.Logger
 import com.icapps.background_location_tracker.utils.NotificationUtil
 import com.icapps.background_location_tracker.utils.SharedPrefsUtil
+import java.io.PrintWriter
+import java.io.StringWriter
+
+private const val timeOut = 24 * 60 * 60 * 1000L /*24 hours max */
 
 internal class LocationUpdatesService : Service() {
     private val binder: IBinder = LocalBinder()
@@ -131,13 +135,23 @@ internal class LocationUpdatesService : Service() {
         // Called when the last client (MainActivity in case of this sample) unbinds from this
         // service. If this method is called due to a configuration change in MainActivity, we
         // do nothing. Otherwise, we make this service a foreground service.
-        if (!changingConfiguration && SharedPrefsUtil.isTracking(this)) {
-            Logger.debug(TAG, "Starting foreground service")
-            if (wakeLock?.isHeld != true) {
-                wakeLock?.acquire(24 * 60 * 60 * 1000L)
+
+        try {
+            if (!changingConfiguration && SharedPrefsUtil.isTracking(this)) {
+                Logger.debug(TAG, "Starting foreground service")
+                if (wakeLock?.isHeld != true) {
+                    wakeLock?.acquire(timeOut)
+                }
+                NotificationUtil.startForeground(this, location)
             }
-            NotificationUtil.startForeground(this, location)
+        } catch(e:Throwable) {
+            val sw = StringWriter()
+            val pw = PrintWriter(sw)
+            e.printStackTrace(pw)
+            pw.flush()
+            Logger.error(sw.toString(),"onUnbind failed to execute");
         }
+
         return true // Ensures onRebind() is called when a client re-binds.
     }
 
@@ -153,7 +167,7 @@ internal class LocationUpdatesService : Service() {
      * [SecurityException].
      */
     fun startTracking() {
-        wakeLock?.acquire(24 * 60 * 60 * 1000L /*24 hours max */)
+        wakeLock?.acquire(timeOut)
 
         Logger.debug(TAG, "Requesting location updates")
         SharedPrefsUtil.saveIsTracking(this, true)
