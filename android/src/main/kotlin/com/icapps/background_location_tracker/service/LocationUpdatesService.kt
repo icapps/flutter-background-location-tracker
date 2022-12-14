@@ -148,6 +148,7 @@ internal class LocationUpdatesService : Service() {
             val sw = StringWriter()
             val pw = PrintWriter(sw)
             e.printStackTrace(pw)
+            pw.flush()
             Logger.error(sw.toString(),"onUnbind failed to execute");
         }
 
