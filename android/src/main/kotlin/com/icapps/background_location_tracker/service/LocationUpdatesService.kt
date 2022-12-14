@@ -24,6 +24,8 @@ import com.icapps.background_location_tracker.utils.Logger
 import com.icapps.background_location_tracker.utils.NotificationUtil
 import com.icapps.background_location_tracker.utils.SharedPrefsUtil
 
+private const val timeOut = 24 * 60 * 60 * 1000L
+
 internal class LocationUpdatesService : Service() {
     private val binder: IBinder = LocalBinder()
 
@@ -136,13 +138,13 @@ internal class LocationUpdatesService : Service() {
             if (!changingConfiguration && SharedPrefsUtil.isTracking(this)) {
                 Logger.debug(TAG, "Starting foreground service")
                 if (wakeLock?.isHeld != true) {
-                    wakeLock?.acquire(24 * 60 * 60 * 1000L)
+                    wakeLock?.acquire(timeOut)
                 }
                 NotificationUtil.startForeground(this, location)
             }
         }
-        catch(e:Exception) {
-            Logger.error(e.message ?: "","onUnbind failed to execute", );
+        catch(e:Throwable) {
+            Logger.error(e.message ?: "","onUnbind failed to execute");
         }
 
         return true // Ensures onRebind() is called when a client re-binds.
@@ -160,7 +162,7 @@ internal class LocationUpdatesService : Service() {
      * [SecurityException].
      */
     fun startTracking() {
-        wakeLock?.acquire(24 * 60 * 60 * 1000L /*24 hours max */)
+        wakeLock?.acquire(timeOut /*24 hours max */)
 
         Logger.debug(TAG, "Requesting location updates")
         SharedPrefsUtil.saveIsTracking(this, true)
