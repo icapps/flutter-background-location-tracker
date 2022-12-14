@@ -134,7 +134,7 @@ internal class LocationUpdatesService : Service() {
         // service. If this method is called due to a configuration change in MainActivity, we
         // do nothing. Otherwise, we make this service a foreground service.
 
-        try{
+        try {
             if (!changingConfiguration && SharedPrefsUtil.isTracking(this)) {
                 Logger.debug(TAG, "Starting foreground service")
                 if (wakeLock?.isHeld != true) {
@@ -142,8 +142,7 @@ internal class LocationUpdatesService : Service() {
                 }
                 NotificationUtil.startForeground(this, location)
             }
-        }
-        catch(e:Throwable) {
+        } catch(e:Throwable) {
             Logger.error(e.message ?: "","onUnbind failed to execute");
         }
 
