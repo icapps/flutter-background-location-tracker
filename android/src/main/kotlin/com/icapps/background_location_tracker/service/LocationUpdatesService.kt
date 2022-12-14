@@ -24,7 +24,7 @@ import com.icapps.background_location_tracker.utils.Logger
 import com.icapps.background_location_tracker.utils.NotificationUtil
 import com.icapps.background_location_tracker.utils.SharedPrefsUtil
 
-private const val timeOut = 24 * 60 * 60 * 1000L
+private const val timeOut = 24 * 60 * 60 * 1000L /*24 hours max */
 
 internal class LocationUpdatesService : Service() {
     private val binder: IBinder = LocalBinder()
@@ -162,7 +162,7 @@ internal class LocationUpdatesService : Service() {
      * [SecurityException].
      */
     fun startTracking() {
-        wakeLock?.acquire(timeOut /*24 hours max */)
+        wakeLock?.acquire(timeOut)
 
         Logger.debug(TAG, "Requesting location updates")
         SharedPrefsUtil.saveIsTracking(this, true)
