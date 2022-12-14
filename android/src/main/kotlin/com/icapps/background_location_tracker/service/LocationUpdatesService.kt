@@ -23,6 +23,8 @@ import com.icapps.background_location_tracker.utils.ActivityCounter
 import com.icapps.background_location_tracker.utils.Logger
 import com.icapps.background_location_tracker.utils.NotificationUtil
 import com.icapps.background_location_tracker.utils.SharedPrefsUtil
+import java.io.PrintWriter
+import java.io.StringWriter
 
 private const val timeOut = 24 * 60 * 60 * 1000L /*24 hours max */
 
@@ -143,7 +145,10 @@ internal class LocationUpdatesService : Service() {
                 NotificationUtil.startForeground(this, location)
             }
         } catch(e:Throwable) {
-            Logger.error(e.message ?: "","onUnbind failed to execute");
+            val sw = StringWriter()
+            val pw = PrintWriter(sw)
+            e.printStackTrace(pw)
+            Logger.error(sw.toString(),"onUnbind failed to execute");
         }
 
         return true // Ensures onRebind() is called when a client re-binds.
