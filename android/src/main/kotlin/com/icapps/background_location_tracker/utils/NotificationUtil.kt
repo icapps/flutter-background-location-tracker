@@ -78,6 +78,7 @@ internal object NotificationUtil {
                 .setContentTitle(title)
                 .setContentText(text)
                 .setContentIntent(clickPendingIntent)
+                .setForegroundServiceBehavior(NotificationCompat.FOREGROUND_SERVICE_IMMEDIATE)
         if (SharedPrefsUtil.isCancelTrackingActionEnabled(context)) {
             builder.addAction(0, SharedPrefsUtil.getCancelTrackingActionText(context), cancelTrackingIntent)
         }

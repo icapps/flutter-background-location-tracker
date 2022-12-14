@@ -131,13 +131,20 @@ internal class LocationUpdatesService : Service() {
         // Called when the last client (MainActivity in case of this sample) unbinds from this
         // service. If this method is called due to a configuration change in MainActivity, we
         // do nothing. Otherwise, we make this service a foreground service.
-        if (!changingConfiguration && SharedPrefsUtil.isTracking(this)) {
-            Logger.debug(TAG, "Starting foreground service")
-            if (wakeLock?.isHeld != true) {
-                wakeLock?.acquire(24 * 60 * 60 * 1000L)
+
+        try{
+            if (!changingConfiguration && SharedPrefsUtil.isTracking(this)) {
+                Logger.debug(TAG, "Starting foreground service")
+                if (wakeLock?.isHeld != true) {
+                    wakeLock?.acquire(24 * 60 * 60 * 1000L)
+                }
+                NotificationUtil.startForeground(this, location)
             }
-            NotificationUtil.startForeground(this, location)
         }
+        catch(e:Exception) {
+            Logger.error(e.message ?: "","onUnbind failed to execute", );
+        }
+
         return true // Ensures onRebind() is called when a client re-binds.
     }
 
