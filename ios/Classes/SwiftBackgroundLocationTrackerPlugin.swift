@@ -121,11 +121,22 @@ extension SwiftBackgroundLocationTrackerPlugin: CLLocationManagerDelegate {
         
         CustomLogger.log(message: "NEW LOCATION: \(location.coordinate.latitude): \(location.coordinate.longitude)")
         
-        let locationData: [String: Any] = [
+        var locationData: [String: Any] = [
             "lat": location.coordinate.latitude,
             "lon": location.coordinate.longitude,
+            "alt": location.altitude,
+            "vertical_accuracy": location.verticalAccuracy,
+            "horizontal_accuracy": location.horizontalAccuracy,
+            "course": location.course,
+            "course_accuracy": -1,
+            "speed": location.speed,
+            "speed_accuracy": location.speedAccuracy,
             "logging_enabled": SharedPrefsUtil.isLoggingEnabled(),
         ]
+        
+        if #available(iOS 13.4, *) {
+            locationData["course_accuracy"] = location.courseAccuracy
+        }
         
         if SwiftBackgroundLocationTrackerPlugin.initializedBackgroundCallbacks {
             CustomLogger.log(message: "INITIALIZED, ready to send location updates")

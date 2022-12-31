@@ -36,7 +36,24 @@ class BackgroundChannel {
     BackgroundLocationTrackerLogger.log('locationUpdate: ${call.arguments}');
     final lat = data['lat'] as double; // ignore: avoid_as
     final lon = data['lon'] as double; // ignore: avoid_as
-    await callback(BackgroundLocationUpdateData(lat: lat, lon: lon));
+    final alt = data['alt'] as double; // ignore: avoid_as
+    final verticalAccuracy = data['vertical_accuracy'] as double; // ignore: avoid_as
+    final horizontalAccuracy = data['horizontal_accuracy'] as double; // ignore: avoid_as
+    final course = data['course'] as double; // ignore: avoid_as
+    final courseAccuracy = data['course_accuracy'] as double; // ignore: avoid_as
+    final speed = data['speed'] as double; // ignore: avoid_as
+    final speedAccuracy = data['speed_accuracy'] as double; // ignore: avoid_as
+    await callback(BackgroundLocationUpdateData(
+        lat: lat,
+        lon: lon,
+        horizontalAccuracy: horizontalAccuracy,
+        alt: alt,
+        verticalAccuracy: verticalAccuracy,
+        course: course,
+        courseAccuracy: courseAccuracy,
+        speed: speed,
+        speedAccuracy: speedAccuracy
+    ));
     return true;
   }
 }
