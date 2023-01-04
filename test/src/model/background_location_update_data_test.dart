@@ -3,7 +3,17 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   test('Background location update data', () async {
-    const data = BackgroundLocationUpdateData(lat: 51.45, lon: 4.5, horizontalAccuracy: 1.2, alt: 42.3, verticalAccuracy: 0.3, course: 128.3, courseAccuracy: 14.3, speed: 12.2, speedAccuracy: 0.9);
+    const data = BackgroundLocationUpdateData(
+      lat: 51.45,
+      lon: 4.5,
+      horizontalAccuracy: 1.2,
+      alt: 42.3,
+      verticalAccuracy: 0.3,
+      course: 128.3,
+      courseAccuracy: 14.3,
+      speed: 12.2,
+      speedAccuracy: 0.9,
+    );
     expect(data.lat, 51.45);
     expect(data.lon, 4.5);
     expect(data.horizontalAccuracy, 1.2);
@@ -16,7 +26,17 @@ void main() {
   });
 
   test('Background location update data', () async {
-    const data = BackgroundLocationUpdateData(lat: 51.45, lon: 4.5, horizontalAccuracy: 1.2, alt: 42.3, verticalAccuracy: 0.3, course: 128.3, courseAccuracy: 14.3, speed: 12.2, speedAccuracy: 0.9);
+    const data = BackgroundLocationUpdateData(
+      lat: 51.45,
+      lon: 4.5,
+      horizontalAccuracy: 1.2,
+      alt: 42.3,
+      verticalAccuracy: 0.3,
+      course: 128.3,
+      courseAccuracy: 14.3,
+      speed: 12.2,
+      speedAccuracy: 0.9,
+    );
     expect(data.lat, 51.45);
     expect(data.lon, 4.5);
     expect(data.horizontalAccuracy, 1.2);
