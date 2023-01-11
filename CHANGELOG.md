@@ -1,3 +1,16 @@
+## 1.4.0 - 11-01-2023
+- Added extra fields. (-1 if not supported or not available)
+    - horizontalAccuracy
+    - alt
+    - verticalAccuracy (Android > O)
+    - course
+    - courseAccuracy (iOS > 13.4 & Android > O)
+    - speed
+    - speedAccuracy (Android > O)
+
+## 1.3.1 - 14-12-2022
+- Fix crash with starting service in background
+
 ## 1.3.0 - 12-09-2022
 - Added support for android sdk 33
 - Updated dependencies
