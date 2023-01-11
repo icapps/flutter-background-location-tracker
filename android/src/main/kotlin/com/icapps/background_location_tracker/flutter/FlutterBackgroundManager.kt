@@ -2,6 +2,7 @@ package com.icapps.background_location_tracker.flutter
 
 import android.content.Context
 import android.location.Location
+import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import com.icapps.background_location_tracker.BackgroundLocationTrackerPlugin
@@ -59,7 +60,21 @@ internal object FlutterBackgroundManager {
         val data = mutableMapOf<String, Any>()
         data["lat"] = location.latitude
         data["lon"] = location.longitude
+        data["alt"] = if (location.hasAltitude()) location.altitude else 0.0
+        data["vertical_accuracy"] = -1.0
+        data["horizontal_accuracy"] = if (location.hasAccuracy()) location.accuracy else -1.0
+        data["course"] = if (location.hasBearing()) location.bearing else -1.0
+        data["course_accuracy"] = -1.0
+        data["speed"] = if (location.hasSpeed()) location.speed else -1.0
+        data["speed_accuracy"] = -1.0
         data["logging_enabled"] = SharedPrefsUtil.isLoggingEnabled(ctx)
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            data["vertical_accuracy"] = if (location.hasVerticalAccuracy()) location.verticalAccuracyMeters else -1.0
+            data["course_accuracy"] = if (location.hasBearingAccuracy()) location.bearingAccuracyDegrees else -1.0
+            data["speed_accuracy"] = if (location.hasSpeedAccuracy()) location.speedAccuracyMetersPerSecond else -1.0
+        }
+
         channel.invokeMethod("onLocationUpdate", data, object : MethodChannel.Result {
             override fun success(result: Any?) {
                 Logger.debug("BackgroundManager", "Got success, destroy engine!")
