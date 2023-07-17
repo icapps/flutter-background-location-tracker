@@ -1,3 +1,6 @@
+## 1.4.1 - 10-04-2023
+- Updates Play Services Location library
+  
 ## 1.4.0 - 11-01-2023
 - Added extra fields. (-1 if not supported or not available)
     - horizontalAccuracy
