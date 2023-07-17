@@ -1,4 +1,4 @@
-## 1.4.1 - 10-04-2023
+## 1.4.1 - 17-06-2023
 - Updates Play Services Location library
   
 ## 1.4.0 - 11-01-2023
