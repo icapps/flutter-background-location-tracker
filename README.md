@@ -107,6 +107,15 @@ Future<void> main() async {
 
   runApp(MyApp());
 }
+
+startLocationTracking() async {
+  await BackgroundLocationTrackerManager.startTracking();
+}
+
+stopLocationTracking() async {
+  await BackgroundLocationTrackerManager.stopTracking();
+}
+
 ```
 
 # FAQ:
