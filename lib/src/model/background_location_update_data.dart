@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 /// BackgroundLocationUpdateData will contain all the data that is send when getting a background location update
 ///
 /// latitude & longitude
@@ -40,4 +42,94 @@ class BackgroundLocationUpdateData {
     required this.speed,
     required this.speedAccuracy,
   });
+
+  Map<String, dynamic> toMap() {
+    return {
+      'lat': lat,
+      'lon': lon,
+      'horizontalAccuracy': horizontalAccuracy,
+      'alt': alt,
+      'verticalAccuracy': verticalAccuracy,
+      'course': course,
+      'courseAccuracy': courseAccuracy,
+      'speed': speed,
+      'speedAccuracy': speedAccuracy,
+    };
+  }
+
+  factory BackgroundLocationUpdateData.fromMap(Map<String, dynamic> map) {
+    return BackgroundLocationUpdateData(
+      lat: map['lat']?.toDouble() ?? 0.0,
+      lon: map['lon']?.toDouble() ?? 0.0,
+      horizontalAccuracy: map['horizontalAccuracy']?.toDouble() ?? 0.0,
+      alt: map['alt']?.toDouble() ?? 0.0,
+      verticalAccuracy: map['verticalAccuracy']?.toDouble() ?? 0.0,
+      course: map['course']?.toDouble() ?? 0.0,
+      courseAccuracy: map['courseAccuracy']?.toDouble() ?? 0.0,
+      speed: map['speed']?.toDouble() ?? 0.0,
+      speedAccuracy: map['speedAccuracy']?.toDouble() ?? 0.0,
+    );
+  }
+
+  String toJson() => json.encode(toMap());
+
+  factory BackgroundLocationUpdateData.fromJson(String source) => BackgroundLocationUpdateData.fromMap(json.decode(source));
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+
+    return other is BackgroundLocationUpdateData &&
+        other.lat == lat &&
+        other.lon == lon &&
+        other.horizontalAccuracy == horizontalAccuracy &&
+        other.alt == alt &&
+        other.verticalAccuracy == verticalAccuracy &&
+        other.course == course &&
+        other.courseAccuracy == courseAccuracy &&
+        other.speed == speed &&
+        other.speedAccuracy == speedAccuracy;
+  }
+
+  @override
+  int get hashCode {
+    return lat.hashCode ^
+        lon.hashCode ^
+        horizontalAccuracy.hashCode ^
+        alt.hashCode ^
+        verticalAccuracy.hashCode ^
+        course.hashCode ^
+        courseAccuracy.hashCode ^
+        speed.hashCode ^
+        speedAccuracy.hashCode;
+  }
+
+  @override
+  String toString() {
+    return 'BackgroundLocationUpdateData(lat: $lat, lon: $lon, horizontalAccuracy: $horizontalAccuracy, alt: $alt, verticalAccuracy: $verticalAccuracy, course: $course, courseAccuracy: $courseAccuracy, speed: $speed, speedAccuracy: $speedAccuracy)';
+  }
+
+  BackgroundLocationUpdateData copyWith({
+    double? lat,
+    double? lon,
+    double? horizontalAccuracy,
+    double? alt,
+    double? verticalAccuracy,
+    double? course,
+    double? courseAccuracy,
+    double? speed,
+    double? speedAccuracy,
+  }) {
+    return BackgroundLocationUpdateData(
+      lat: lat ?? this.lat,
+      lon: lon ?? this.lon,
+      horizontalAccuracy: horizontalAccuracy ?? this.horizontalAccuracy,
+      alt: alt ?? this.alt,
+      verticalAccuracy: verticalAccuracy ?? this.verticalAccuracy,
+      course: course ?? this.course,
+      courseAccuracy: courseAccuracy ?? this.courseAccuracy,
+      speed: speed ?? this.speed,
+      speedAccuracy: speedAccuracy ?? this.speedAccuracy,
+    );
+  }
 }

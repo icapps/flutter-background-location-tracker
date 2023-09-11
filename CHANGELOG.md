@@ -1,3 +1,6 @@
+## 1.4.2 - 11-09-2023
+- Added fromJson/toJson/toString/equals/copyWith methods in BackgroundLocationUpdateData
+  
 ## 1.4.1 - 17-06-2023
 - Updates Play Services Location library
   
