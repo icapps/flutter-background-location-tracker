@@ -1,37 +1,37 @@
 import 'dart:io';
 
-void main() {
+void main(List<String> args) {
   printMessage('Start filtering the lcov.info file');
   final file = File('coverage/lcov.info');
   if (!file.existsSync()) {
-    printMessage('"lcov.info" does not exist');
+    printMessage('${file.path}" does not exist');
     return;
   }
   const endOfRecord = 'end_of_record';
   final sections = <LcovSection>[];
   final lines = file.readAsLinesSync();
   LcovSection? currentSection;
-  lines.forEach((line) {
+  for (final line in lines) {
     if (line.endsWith('.dart')) {
       final filePath = line.replaceAll('SF:', '');
       currentSection = LcovSection()
         ..header = line
         ..filePath = filePath;
     } else if (line == endOfRecord) {
-      final session = currentSection;
-      if (session != null) {
-        session.footer = line;
-        sections.add(session);
+      final currentSectionTmp = currentSection;
+      if (currentSectionTmp != null) {
+        currentSectionTmp.footer = line;
+        sections.add(currentSectionTmp);
       }
     } else {
       currentSection?.body.add(line);
     }
-  });
+  }
   final filteredSections = getFilteredSections(sections);
   final sb = StringBuffer();
-  filteredSections.forEach((section) {
+  for (final section in filteredSections) {
     sb.write(section.toString());
-  });
+  }
   file.writeAsStringSync(sb.toString());
   printMessage('Filtered the lcov.info file');
 }
@@ -42,12 +42,10 @@ class LcovSection {
   final body = <String>[];
   String? footer;
 
-  String getBodyString() {
-    final path = filePath;
-    if (path == null) {
-      throw ArgumentError('file path can not be null');
-    }
-    final file = File(path);
+  String? getBodyString() {
+    final filePathTmp = filePath;
+    if (filePathTmp == null) return null;
+    final file = File(filePathTmp);
     final content = file.readAsLinesSync();
     final sb = StringBuffer();
     getFilteredBody(body, content).forEach((item) => sb
@@ -64,13 +62,23 @@ class LcovSection {
 
 List<LcovSection> getFilteredSections(List<LcovSection> sections) {
   return sections.where((section) {
-    if (section.header?.endsWith('.g.dart') == true) {
+    final header = section.header;
+    if (header == null) return false;
+    if (!header.endsWith('.dart')) {
       return false;
-    } else if (section.header?.endsWith('dummy_service.dart') == true) {
+    } else if (header.endsWith('.g.dart')) {
       return false;
-    } else if (section.header?.startsWith('SF:lib/vendor/') == true) {
+    } else if (header.endsWith('.config.dart')) {
       return false;
-    } else if (section.header?.startsWith('SF:lib/util/locale') == true) {
+    } else if (header.endsWith('injectable.dart')) {
+      return false;
+    } else if (header.startsWith('SF:lib/util/locale')) {
+      return false;
+    } else if (header.startsWith('SF:lib/widget')) {
+      return false;
+    } else if (header.startsWith('SF:lib/screen')) {
+      return false;
+    } else if (header.startsWith('SF:lib/navigator')) {
       return false;
     }
     return true;
@@ -99,7 +107,13 @@ List<String> getFilteredBody(List<String> body, List<String> lines) {
   }).toList();
 }
 
-const excludedLines = <String>[];
+const excludedLines = <String>[
+  'const TranslationWriter._();',
+  'const CaseUtil._();',
+  'const LocaleGenParser._();',
+  'const LocaleGenSbWriter._();',
+  'const LocaleGenWriter._();',
+];
 
 const excludedStartsWithLines = <String>[];
 
