@@ -59,22 +59,21 @@ class BackgroundLocationUpdateData {
 
   factory BackgroundLocationUpdateData.fromMap(Map<String, dynamic> map) {
     return BackgroundLocationUpdateData(
-      lat: map['lat']?.toDouble() ?? 0.0,
-      lon: map['lon']?.toDouble() ?? 0.0,
-      horizontalAccuracy: map['horizontalAccuracy']?.toDouble() ?? 0.0,
-      alt: map['alt']?.toDouble() ?? 0.0,
-      verticalAccuracy: map['verticalAccuracy']?.toDouble() ?? 0.0,
-      course: map['course']?.toDouble() ?? 0.0,
-      courseAccuracy: map['courseAccuracy']?.toDouble() ?? 0.0,
-      speed: map['speed']?.toDouble() ?? 0.0,
-      speedAccuracy: map['speedAccuracy']?.toDouble() ?? 0.0,
+      lat: map['lat'].toDouble(),
+      lon: map['lon'].toDouble(),
+      horizontalAccuracy: map['horizontalAccuracy'].toDouble(),
+      alt: map['alt'].toDouble(),
+      verticalAccuracy: map['verticalAccuracy'].toDouble(),
+      course: map['course'].toDouble(),
+      courseAccuracy: map['courseAccuracy'].toDouble(),
+      speed: map['speed'].toDouble(),
+      speedAccuracy: map['speedAccuracy'].toDouble(),
     );
   }
 
   String toJson() => json.encode(toMap());
 
-  factory BackgroundLocationUpdateData.fromJson(String source) =>
-      BackgroundLocationUpdateData.fromMap(json.decode(source));
+  factory BackgroundLocationUpdateData.fromJson(String source) => BackgroundLocationUpdateData.fromMap(json.decode(source));
 
   @override
   bool operator ==(Object other) {
