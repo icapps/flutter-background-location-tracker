@@ -162,7 +162,7 @@ class _MyAppState extends State<MyApp> {
   }
 
   Future<void> _requestLocationPermission() async {
-    final result = await Permission.locationAlways.request();
+    final result = await Permission.location.request();
     if (result == PermissionStatus.granted) {
       print('GRANTED'); // ignore: avoid_print
     } else {
