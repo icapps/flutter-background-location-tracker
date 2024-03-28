@@ -3,7 +3,6 @@ analyzer:
     missing_required_param: error
     missing_return: error
     todo: ignore
-    sdk_version_async_exported_from_core: ignore
   language:
     strict-casts: false
     strict-raw-types: false
