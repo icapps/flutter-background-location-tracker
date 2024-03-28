@@ -1,3 +1,7 @@
+## 1.4.3 - 28-03-2024
+- Updated targetSdkVersion to 34 and added FOREGROUND_SERVICE_LOCATION for support Android 14
+- Removed unrecognized_error_code from analysis_options.yaml
+  
 ## 1.4.2 - 11-09-2023
 - Added fromJson/toJson/toString/equals/copyWith methods in BackgroundLocationUpdateData
   
