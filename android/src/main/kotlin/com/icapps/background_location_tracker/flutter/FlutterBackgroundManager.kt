@@ -50,8 +50,19 @@ internal object FlutterBackgroundManager {
         }
         flutterLoader.ensureInitializationCompleteAsync(ctx, null, Handler(Looper.getMainLooper())) {
             val callbackHandle = SharedPrefsUtil.getCallbackHandle(ctx)
+            if (callbackHandle == 0L) {
+                Logger.debug("BackgroundManager", "Invalid callback handle: $callbackHandle")
+                return@ensureInitializationCompleteAsync
+            }
+
             val callbackInfo = FlutterCallbackInformation.lookupCallbackInformation(callbackHandle)
+            if (callbackInfo == null) {
+                Logger.debug("BackgroundManager", "Failed to find callback information for handle: $callbackHandle")
+                return@ensureInitializationCompleteAsync
+            }
+
             val dartBundlePath = flutterLoader.findAppBundlePath()
+
             engine.dartExecutor.executeDartCallback(DartExecutor.DartCallback(ctx.assets, dartBundlePath, callbackInfo))
         }
     }
