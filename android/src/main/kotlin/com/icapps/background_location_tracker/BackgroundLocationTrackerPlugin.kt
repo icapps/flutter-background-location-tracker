@@ -113,9 +113,9 @@ class BackgroundLocationTrackerPlugin : FlutterPlugin, MethodCallHandler, Activi
     }
 
     @Deprecated(message = "Use the Android v2 embedding method.")
-    private class ProxyLifecycleProvider internal constructor(activity: Activity) : Application.ActivityLifecycleCallbacks, LifecycleOwner {
-        private val lifecycle = LifecycleRegistry(this)
-        private val registrarActivityHashCode: Int = activity.hashCode()
+    class ProxyLifecycleProvider internal constructor(activity: Activity) : Application.ActivityLifecycleCallbacks, LifecycleOwner {
+        val lifecycle = LifecycleRegistry(this)
+        val registrarActivityHashCode: Int = activity.hashCode()
 
         init {
             activity.application.registerActivityLifecycleCallbacks(this)
