@@ -40,10 +40,13 @@ android {
     sourceSets {
         main.java.srcDirs += 'src/main/kotlin'
     }
+
     defaultConfig {
         minSdkVersion 16
         targetSdkVersion 34
+        multiDexEnabled true
     }
+
     lintOptions {
         disable 'InvalidPackage'
     }
