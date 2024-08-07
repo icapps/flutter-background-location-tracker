@@ -103,7 +103,9 @@ class BackgroundLocationTrackerPlugin : FlutterPlugin, MethodCallHandler, Activi
             })
         }
 
-        @Deprecated(message = "Use the Android v2 embedding method.")
+        @Deprecated(message = "Use the Android v2 embedding method.", replaceWith =
+            ReplaceWith("BackgroundLocationTrackerPlugin.pluginRegistryCallback = pluginRegistryCallback")
+        )
         @JvmStatic
         fun setPluginRegistrantCallback(pluginRegistryCallback: PluginRegistry.PluginRegistrantCallback) {
             BackgroundLocationTrackerPlugin.pluginRegistryCallback = pluginRegistryCallback
