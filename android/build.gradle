@@ -2,7 +2,7 @@ group 'com.icapps.background_location_tracker'
 version '1.0-SNAPSHOT'
 
 buildscript {
-    ext.kotlin_version = '1.6.0'
+    ext.kotlin_version = '1.9.0'
     repositories {
         google()
         mavenCentral()
