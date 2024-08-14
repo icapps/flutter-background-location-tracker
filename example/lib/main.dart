@@ -1,6 +1,7 @@
 import 'dart:async';
+import 'dart:developer';
 import 'dart:io';
-import 'dart:math';
+import 'dart:math' as math;
 
 import 'package:background_location_tracker/background_location_tracker.dart';
 import 'package:flutter/material.dart';
@@ -202,7 +203,7 @@ class Repo {
 
   Future<void> update(BackgroundLocationUpdateData data) async {
     final text = 'Location Update: Lat: ${data.lat} Lon: ${data.lon}';
-    print(text); // ignore: avoid_print
+    log(text); // ignore: avoid_print
     sendNotification(text);
     await LocationDao().saveLocation(data);
   }
@@ -245,7 +246,7 @@ class LocationDao {
 void sendNotification(String text) {
   const settings = InitializationSettings(
     android: AndroidInitializationSettings('app_icon'),
-    iOS: IOSInitializationSettings(
+    iOS: DarwinInitializationSettings(
       requestAlertPermission: false,
       requestBadgePermission: false,
       requestSoundPermission: false,
@@ -253,17 +254,17 @@ void sendNotification(String text) {
   );
   FlutterLocalNotificationsPlugin().initialize(
     settings,
-    onSelectNotification: (data) async {
+    onDidReceiveNotificationResponse: (data) async {
       print('ON CLICK $data'); // ignore: avoid_print
     },
   );
   FlutterLocalNotificationsPlugin().show(
-    Random().nextInt(9999),
+    math.Random().nextInt(9999),
     'Title',
     text,
     const NotificationDetails(
       android: AndroidNotificationDetails('test_notification', 'Test'),
-      iOS: IOSNotificationDetails(),
+      iOS: DarwinNotificationDetails(),
     ),
   );
 }
