@@ -15,26 +15,14 @@ import io.flutter.embedding.engine.plugins.shim.ShimPluginRegistry
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.view.FlutterCallbackInformation
+import kotlin.math.abs
 
 internal object FlutterBackgroundManager {
     private const val BACKGROUND_CHANNEL_NAME = "com.icapps.background_location_tracker/background_channel"
 
     private val flutterLoader = FlutterLoader()
-
     private var lastLocation: Location? = null
-
-    private fun calculateBearing(startLat: Double, startLng: Double, endLat: Double, endLng: Double): Float {
-        val latitude1 = Math.toRadians(startLat)
-        val latitude2 = Math.toRadians(endLat)
-        val longDiff = Math.toRadians(endLng - startLng)
-        val y = Math.sin(longDiff) * Math.cos(latitude2)
-        val x = Math.cos(latitude1) * Math.sin(latitude2) - Math.sin(latitude1) * Math.cos(latitude2) * Math.cos(longDiff)
-        var bearing = Math.toDegrees(Math.atan2(y, x))
-        if (bearing < 0) {
-            bearing += 360
-        }
-        return bearing.toFloat()
-    }
+    private var lastValidCourse: Float = -1f
 
     private fun getInitializedFlutterEngine(ctx: Context): FlutterEngine {
         Logger.debug("BackgroundManager", "Creating new engine")
@@ -87,48 +75,38 @@ internal object FlutterBackgroundManager {
         data["lat"] = location.latitude
         data["lon"] = location.longitude
         data["alt"] = if (location.hasAltitude()) location.altitude else 0.0
+        data["vertical_accuracy"] = -1.0
+        data["horizontal_accuracy"] = if (location.hasAccuracy()) location.accuracy else -1.0
         
-        // Vertical accuracy available in Android O and above
-        data["vertical_accuracy"] = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && location.hasVerticalAccuracy()) {
-            location.verticalAccuracyMeters.toDouble()
-        } else {
-            -1.0
-        }
-        
-        data["horizontal_accuracy"] = if (location.hasAccuracy()) location.accuracy.toDouble() else -1.0
-        
-        // Enhanced bearing calculation without speed dependency
-        data["course"] = when {
-            location.hasBearing() -> location.bearing.toDouble()
-            lastLocation != null -> {
-                // Calculate bearing from previous location
-                calculateBearing(
-                    lastLocation!!.latitude, lastLocation!!.longitude,
-                    location.latitude, location.longitude
-                ).toDouble()
+        // Enhanced course calculation with smoothing
+        val course = if (location.hasBearing()) {
+            var bearing = location.bearing
+            if (bearing < 0) bearing += 360f
+            
+            // Only update course if speed is above threshold and accuracy is good
+            if (location.hasSpeed() && location.speed > 0.1 && location.hasAccuracy() && location.accuracy < 20) {
+                lastValidCourse = bearing
+                bearing
+            } else if (lastValidCourse >= 0) {
+                // Use last valid course if current reading is not reliable
+                lastValidCourse
+            } else {
+                -1.0f
             }
-            else -> -1.0
-        }
+        } else -1.0f
         
-        // Course accuracy available in Android O and above
-        data["course_accuracy"] = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && location.hasBearingAccuracy()) {
-            location.bearingAccuracyDegrees.toDouble()
-        } else {
-            -1.0
-        }
-        
-        data["speed"] = if (location.hasSpeed()) location.speed.toDouble() else -1.0
-        
-        // Speed accuracy available in Android O and above
-        data["speed_accuracy"] = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && location.hasSpeedAccuracy()) {
-            location.speedAccuracyMetersPerSecond.toDouble()
-        } else {
-            -1.0
-        }
-        
+        data["course"] = course
+        data["course_accuracy"] = -1.0
+        data["speed"] = if (location.hasSpeed()) location.speed else -1.0
+        data["speed_accuracy"] = -1.0
         data["logging_enabled"] = SharedPrefsUtil.isLoggingEnabled(ctx)
-        
-        // Store last location for bearing calculations
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            data["vertical_accuracy"] = if (location.hasVerticalAccuracy()) location.verticalAccuracyMeters else -1.0
+            data["course_accuracy"] = if (location.hasBearingAccuracy()) location.bearingAccuracyDegrees else -1.0
+            data["speed_accuracy"] = if (location.hasSpeedAccuracy()) location.speedAccuracyMetersPerSecond else -1.0
+        }
+
         lastLocation = location
 
         channel.invokeMethod("onLocationUpdate", data, object : MethodChannel.Result {

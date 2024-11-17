@@ -241,18 +241,18 @@ internal class LocationUpdatesService : Service() {
             LocalBroadcastManager.getInstance(applicationContext).sendBroadcast(intent)
         }
     }
-
     /**
      * Sets the location request parameters.
      */
     private fun createLocationRequest() {
         val interval = SharedPrefsUtil.trackingInterval(this)
         val distanceFilter = SharedPrefsUtil.distanceFilter(this)
-        locationRequest = LocationRequest.create()
-            .setInterval(interval)
-            .setFastestInterval(interval / 2)
-            .setPriority(Priority.PRIORITY_HIGH_ACCURACY)
-            .setSmallestDisplacement(distanceFilter)
+        locationRequest = LocationRequest.create().apply {
+            interval = interval
+            fastestInterval = interval / 2
+            priority = Priority.PRIORITY_HIGH_ACCURACY
+            smallestDisplacement = distanceFilter
+        }
     }
 
     /**
