@@ -127,7 +127,7 @@ extension SwiftBackgroundLocationTrackerPlugin: CLLocationManagerDelegate {
             "alt": location.altitude,
             "vertical_accuracy": location.verticalAccuracy,
             "horizontal_accuracy": location.horizontalAccuracy,
-            "course": location.course,
+            "course": location.course >= 0 ? location.course : (manager.heading?.trueHeading ?? -1),
             "course_accuracy": -1,
             "speed": location.speed,
             "speed_accuracy": location.speedAccuracy,
@@ -154,6 +154,13 @@ extension SwiftBackgroundLocationTrackerPlugin: CLLocationManagerDelegate {
                 }
                 SwiftBackgroundLocationTrackerPlugin.initBackgroundMethodChannel(flutterEngine: flutterEngine)
             }
+        }
+    }
+    
+    public func locationManager(_ manager: CLLocationManager, didUpdateHeading newHeading: CLHeading) {
+        // Only log if heading accuracy is good (lower values are better)
+        if newHeading.headingAccuracy <= 15 {
+            CustomLogger.log(message: "NEW HEADING: \(String(format: "%.1f", newHeading.trueHeading))")
         }
     }
 }

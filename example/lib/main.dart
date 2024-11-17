@@ -202,7 +202,8 @@ class Repo {
   factory Repo() => _instance ??= Repo._();
 
   Future<void> update(BackgroundLocationUpdateData data) async {
-    final text = 'Location Update: Lat: ${data.lat} Lon: ${data.lon}';
+    final text =
+        'Location Update: Lat: ${data.lat} Lon: ${data.lon} Course: ${data.course} Speed: ${data.speed}';
     log(text); // ignore: avoid_print
     sendNotification(text);
     await LocationDao().saveLocation(data);

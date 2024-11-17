@@ -23,7 +23,7 @@
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
-	<string>Permission is used to get location updates of the user. In the background and foreground.</string>
+	<string>Permission is used to get location updates and heading information of the user. In the background and foreground.</string>
 	<key>NSLocationAlwaysUsageDescription</key>
 	<string>Permission is used to get location updates of the user. In the background.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
@@ -52,6 +52,8 @@
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
 	<key>CADisableMinimumFrameDurationOnPhone</key>
+	<true/>
+	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
 </dict>
 </plist>

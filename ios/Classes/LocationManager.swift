@@ -16,6 +16,11 @@ class LocationManager {
         manager.desiredAccuracy = kCLLocationAccuracyBest
         manager.distanceFilter = SharedPrefsUtil.distanceFilter()
         manager.pausesLocationUpdatesAutomatically = false
+        manager.headingFilter = 5.0
+        manager.headingOrientation = .portrait
+        if CLLocationManager.headingAvailable() {
+            manager.startUpdatingHeading()
+        }
         if #available(iOS 11, *) {
             manager.showsBackgroundLocationIndicator = true
         }
