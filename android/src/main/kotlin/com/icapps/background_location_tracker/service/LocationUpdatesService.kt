@@ -245,7 +245,7 @@ internal class LocationUpdatesService : Service() {
      * Sets the location request parameters.
      */
     private fun createLocationRequest() {
-        val interval = SharedPrefsUtil.trackingInterval(this)
+        var interval = SharedPrefsUtil.trackingInterval(this)
         val distanceFilter = SharedPrefsUtil.distanceFilter(this)
         locationRequest = LocationRequest.create().apply {
             interval = interval
