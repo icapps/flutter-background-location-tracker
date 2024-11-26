@@ -1,3 +1,6 @@
+## 1.4.4 - 26-11-2024
+- Fix: Cannot Access 'lifecycle'
+
 ## 1.4.3 - 28-03-2024
 - Updated targetSdkVersion to 34 and added FOREGROUND_SERVICE_LOCATION for support Android 14
 - Removed unrecognized_error_code from analysis_options.yaml
