@@ -91,4 +91,6 @@ test/coverage_helper_test.dart
 **_testImage.png
 
 # Fvm
-.fvm/flutter_sdk
+
+# FVM Version Cache
+.fvm/
