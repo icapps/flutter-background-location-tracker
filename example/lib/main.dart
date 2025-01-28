@@ -81,7 +81,8 @@ class _MyAppState extends State<MyApp> {
                       onPressed: _requestLocationPermission,
                     ),
                     if (Platform.isAndroid) ...[
-                      const Text('Permission on android is only needed starting from sdk 33.'),
+                      const Text(
+                          'Permission on android is only needed starting from sdk 33.'),
                     ],
                     MaterialButton(
                       child: const Text('Request Notification permission'),
@@ -89,14 +90,16 @@ class _MyAppState extends State<MyApp> {
                     ),
                     MaterialButton(
                       child: const Text('Send notification'),
-                      onPressed: () => sendNotification('Hello from another world'),
+                      onPressed: () =>
+                          sendNotification('Hello from another world'),
                     ),
                     MaterialButton(
                       child: const Text('Start Tracking'),
                       onPressed: isTracking
                           ? null
                           : () async {
-                              await BackgroundLocationTrackerManager.startTracking();
+                              await BackgroundLocationTrackerManager
+                                  .startTracking();
                               setState(() => isTracking = true);
                             },
                     ),
@@ -106,7 +109,8 @@ class _MyAppState extends State<MyApp> {
                           ? () async {
                               await LocationDao().clear();
                               await _getLocations();
-                              await BackgroundLocationTrackerManager.stopTracking();
+                              await BackgroundLocationTrackerManager
+                                  .stopTracking();
                               setState(() => isTracking = false);
                             }
                           : null,
@@ -184,7 +188,8 @@ class _MyAppState extends State<MyApp> {
 
   void _startLocationsUpdatesStream() {
     _timer?.cancel();
-    _timer = Timer.periodic(const Duration(milliseconds: 250), (timer) => _getLocations());
+    _timer = Timer.periodic(
+        const Duration(milliseconds: 250), (timer) => _getLocations());
   }
 }
 
@@ -215,12 +220,15 @@ class LocationDao {
 
   SharedPreferences? _prefs;
 
-  Future<SharedPreferences> get prefs async => _prefs ??= await SharedPreferences.getInstance();
+  Future<SharedPreferences> get prefs async =>
+      _prefs ??= await SharedPreferences.getInstance();
 
   Future<void> saveLocation(BackgroundLocationUpdateData data) async {
     final locations = await getLocations();
-    locations.add('${DateTime.now().toIso8601String()}       ${data.lat},${data.lon}');
-    await (await prefs).setString(_locationsKey, locations.join(_locationSeparator));
+    locations.add(
+        '${DateTime.now().toIso8601String()}       ${data.lat},${data.lon}');
+    await (await prefs)
+        .setString(_locationsKey, locations.join(_locationSeparator));
   }
 
   Future<List<String>> getLocations() async {
