@@ -39,11 +39,13 @@ Future<void> main() async {
 
 @override
 class MyApp extends StatefulWidget {
+  const MyApp({Key? key}) : super(key: key);
+
   @override
-  _MyAppState createState() => _MyAppState();
+  MyAppState createState() => MyAppState();
 }
 
-class _MyAppState extends State<MyApp> {
+class MyAppState extends State<MyApp> {
   var isTracking = false;
 
   Timer? _timer;
@@ -69,7 +71,7 @@ class _MyAppState extends State<MyApp> {
         appBar: AppBar(
           title: const Text('Plugin example app'),
         ),
-        body: Container(
+        body: SizedBox(
           width: double.infinity,
           child: Column(
             children: [
@@ -77,43 +79,39 @@ class _MyAppState extends State<MyApp> {
                 child: Column(
                   children: [
                     MaterialButton(
-                      child: const Text('Request location permission'),
                       onPressed: _requestLocationPermission,
+                      child: const Text('Request location permission'),
                     ),
                     if (Platform.isAndroid) ...[
-                      const Text(
-                          'Permission on android is only needed starting from sdk 33.'),
+                      const Text('Permission on android is only needed starting from sdk 33.'),
                     ],
                     MaterialButton(
-                      child: const Text('Request Notification permission'),
                       onPressed: _requestNotificationPermission,
+                      child: const Text('Request Notification permission'),
                     ),
                     MaterialButton(
                       child: const Text('Send notification'),
-                      onPressed: () =>
-                          sendNotification('Hello from another world'),
+                      onPressed: () => sendNotification('Hello from another world'),
                     ),
                     MaterialButton(
-                      child: const Text('Start Tracking'),
                       onPressed: isTracking
                           ? null
                           : () async {
-                              await BackgroundLocationTrackerManager
-                                  .startTracking();
+                              await BackgroundLocationTrackerManager.startTracking();
                               setState(() => isTracking = true);
                             },
+                      child: const Text('Start Tracking'),
                     ),
                     MaterialButton(
-                      child: const Text('Stop Tracking'),
                       onPressed: isTracking
                           ? () async {
                               await LocationDao().clear();
                               await _getLocations();
-                              await BackgroundLocationTrackerManager
-                                  .stopTracking();
+                              await BackgroundLocationTrackerManager.stopTracking();
                               setState(() => isTracking = false);
                             }
                           : null,
+                      child: const Text('Stop Tracking'),
                     ),
                   ],
                 ),
@@ -125,8 +123,8 @@ class _MyAppState extends State<MyApp> {
               ),
               const Text('Locations'),
               MaterialButton(
-                child: const Text('Refresh locations'),
                 onPressed: _getLocations,
+                child: const Text('Refresh locations'),
               ),
               Expanded(
                 child: Builder(
@@ -188,8 +186,7 @@ class _MyAppState extends State<MyApp> {
 
   void _startLocationsUpdatesStream() {
     _timer?.cancel();
-    _timer = Timer.periodic(
-        const Duration(milliseconds: 250), (timer) => _getLocations());
+    _timer = Timer.periodic(const Duration(milliseconds: 250), (timer) => _getLocations());
   }
 }
 
@@ -220,15 +217,12 @@ class LocationDao {
 
   SharedPreferences? _prefs;
 
-  Future<SharedPreferences> get prefs async =>
-      _prefs ??= await SharedPreferences.getInstance();
+  Future<SharedPreferences> get prefs async => _prefs ??= await SharedPreferences.getInstance();
 
   Future<void> saveLocation(BackgroundLocationUpdateData data) async {
     final locations = await getLocations();
-    locations.add(
-        '${DateTime.now().toIso8601String()}       ${data.lat},${data.lon}');
-    await (await prefs)
-        .setString(_locationsKey, locations.join(_locationSeparator));
+    locations.add('${DateTime.now().toIso8601String()}       ${data.lat},${data.lon}');
+    await (await prefs).setString(_locationsKey, locations.join(_locationSeparator));
   }
 
   Future<List<String>> getLocations() async {
