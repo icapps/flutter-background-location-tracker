@@ -29,6 +29,7 @@ android {
     ndkVersion '28.0.13004108'
 
     compileOptions {
+        coreLibraryDesugaringEnabled true
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
@@ -68,5 +69,6 @@ flutter {
 }
 
 dependencies {
+    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.1.4'
     // Kotlin dependency is automatically added by the Kotlin plugin
 }
