@@ -10,13 +10,14 @@ dependencies:
     path: ../
   flutter:
     sdk: flutter
-  flutter_local_notifications: ^9.9.0
-  permission_handler: ^10.0.0
-  shared_preferences: ^2.0.15
+  flutter_local_notifications: ^18.0.1
+  permission_handler: ^11.3.1
+  shared_preferences: ^2.4.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  flutter_lints: ^5.0.0
 
 flutter:
   uses-material-design: true
