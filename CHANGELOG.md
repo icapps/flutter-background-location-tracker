@@ -1,7 +1,10 @@
 ## 1.5.0 - 2025-01-29
 - Updated gradle dependencies
   
-## 1.4.3 - 2024-03-28
+## 1.4.4 - 26-11-2024
+- Fix: Cannot Access 'lifecycle'
+
+## 1.4.3 - 28-03-2024
 - Updated targetSdkVersion to 34 and added FOREGROUND_SERVICE_LOCATION for support Android 14
 - Removed unrecognized_error_code from analysis_options.yaml
   
