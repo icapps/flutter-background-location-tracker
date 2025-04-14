@@ -33,4 +33,23 @@ class LocationManager {
     class func shared() -> CLLocationManager {
         return sharedLocationManager
     }
+    
+    class func ensureCorrectPermissions() {
+        let authorizationStatus: CLAuthorizationStatus
+        if #available(iOS 14.0, *) {
+            authorizationStatus = sharedLocationManager.authorizationStatus
+        } else {
+            authorizationStatus = CLLocationManager.authorizationStatus()
+        }
+        
+        if authorizationStatus == .notDetermined {
+            if #available(iOS 14.0, *) {
+                sharedLocationManager.requestWhenInUseAuthorization()
+            } else {
+                sharedLocationManager.requestAlwaysAuthorization()
+            }
+        } else if authorizationStatus == .denied || authorizationStatus == .restricted {
+            CustomLogger.log(message: "Location permissions denied or restricted")
+        }
+    }
 }

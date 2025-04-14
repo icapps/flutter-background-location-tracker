@@ -92,6 +92,30 @@ public class ForegroundChannel : NSObject {
     }
     
     private func startTracking(_ result: @escaping FlutterResult) {
+        // Check location authorization status
+        let authorizationStatus: CLAuthorizationStatus
+        if #available(iOS 14.0, *) {
+            authorizationStatus = locationManager.authorizationStatus
+        } else {
+            authorizationStatus = CLLocationManager.authorizationStatus()
+        }
+        
+        // Request authorization if needed
+        if authorizationStatus == .notDetermined {
+            if #available(iOS 14.0, *) {
+                locationManager.requestWhenInUseAuthorization()
+            } else {
+                locationManager.requestAlwaysAuthorization()
+            }
+        }
+        
+        // Ensure location services are enabled
+        if !CLLocationManager.locationServicesEnabled() {
+            CustomLogger.log(message: "Location services are disabled")
+            result(false)
+            return
+        }
+        
         locationManager.startUpdatingLocation()
         isTracking = true
         SharedPrefsUtil.saveIsTracking(isTracking)
