@@ -1,6 +1,7 @@
 package com.icapps.background_location_tracker.service
 
 import android.app.ActivityManager
+import android.app.NotificationManager
 import android.app.Service
 import android.content.Context
 import android.content.Intent
@@ -22,6 +23,7 @@ import com.icapps.background_location_tracker.flutter.FlutterBackgroundManager
 import com.icapps.background_location_tracker.utils.ActivityCounter
 import com.icapps.background_location_tracker.utils.Logger
 import com.icapps.background_location_tracker.utils.NotificationUtil
+import com.icapps.background_location_tracker.utils.NotificationUtil.NOTIFICATION_ID
 import com.icapps.background_location_tracker.utils.SharedPrefsUtil
 import java.io.PrintWriter
 import java.io.StringWriter
@@ -89,6 +91,7 @@ internal class LocationUpdatesService : Service() {
         if (startedFromNotification) {
             stopTracking()
             stopSelf()
+            return START_NOT_STICKY // Don't restart the service if it's killed
         }
 
         // Immediately start as foreground service if tracking is enabled
@@ -229,6 +232,15 @@ internal class LocationUpdatesService : Service() {
             fusedLocationClient?.removeLocationUpdates(locationCallback)
             isLocationUpdatesActive = false
             SharedPrefsUtil.saveIsTracking(this, false)
+            
+            // Stop foreground service and remove notification
+            stopForegroundService()
+            
+            // Cancel the notification explicitly
+            val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            notificationManager.cancel(NOTIFICATION_ID)
+            
+            // Stop service
             stopSelf()
         } catch (unlikely: SecurityException) {
             SharedPrefsUtil.saveIsTracking(this, true)
