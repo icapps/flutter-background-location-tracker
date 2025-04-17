@@ -1,7 +1,6 @@
 package com.icapps.background_location_tracker.service
 
 import android.app.ActivityManager
-import android.app.NotificationManager
 import android.app.Service
 import android.content.Context
 import android.content.Intent
@@ -23,7 +22,6 @@ import com.icapps.background_location_tracker.flutter.FlutterBackgroundManager
 import com.icapps.background_location_tracker.utils.ActivityCounter
 import com.icapps.background_location_tracker.utils.Logger
 import com.icapps.background_location_tracker.utils.NotificationUtil
-import com.icapps.background_location_tracker.utils.NotificationUtil.NOTIFICATION_ID
 import com.icapps.background_location_tracker.utils.SharedPrefsUtil
 import java.io.PrintWriter
 import java.io.StringWriter
@@ -91,16 +89,6 @@ internal class LocationUpdatesService : Service() {
         if (startedFromNotification) {
             stopTracking()
             stopSelf()
-            return START_NOT_STICKY // Don't restart the service if it's killed
-        }
-
-        // Immediately start as foreground service if tracking is enabled
-        if (SharedPrefsUtil.isTracking(this) && !serviceIsRunningInForeground(this)) {
-            Logger.debug(TAG, "Starting as foreground service from onStartCommand")
-            if (wakeLock?.isHeld != true) {
-                wakeLock?.acquire(timeOut)
-            }
-            NotificationUtil.startForeground(this, location)
         }
 
         // Tells the system to try to recreate the service after it has been killed.
@@ -149,16 +137,12 @@ internal class LocationUpdatesService : Service() {
         // do nothing. Otherwise, we make this service a foreground service.
 
         try {
-            // Always maintain the service as foreground when tracking is enabled
-            if (SharedPrefsUtil.isTracking(this)) {
-                Logger.debug(TAG, "Starting foreground service in onUnbind")
+            if (!changingConfiguration && SharedPrefsUtil.isTracking(this)) {
+                Logger.debug(TAG, "Starting foreground service")
                 if (wakeLock?.isHeld != true) {
                     wakeLock?.acquire(timeOut)
                 }
                 NotificationUtil.startForeground(this, location)
-                
-                // Ensure location updates continue
-                ensureLocationUpdatesActive()
             }
         } catch(e:Throwable) {
             val sw = StringWriter()
@@ -176,17 +160,6 @@ internal class LocationUpdatesService : Service() {
         if (wakeLock?.isHeld == true) {
             wakeLock?.release()
         }
-        
-        // Try to restart the service if tracking is still enabled
-        if (SharedPrefsUtil.isTracking(this)) {
-            Logger.debug(TAG, "Service destroyed but tracking still enabled - restarting service")
-            val intent = Intent(applicationContext, LocationUpdatesService::class.java)
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                startForegroundService(intent)
-            } else {
-                startService(intent)
-            }
-        }
     }
 
     /**
@@ -198,17 +171,16 @@ internal class LocationUpdatesService : Service() {
 
         Logger.debug(TAG, "Requesting location updates")
         SharedPrefsUtil.saveIsTracking(this, true)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && ActivityCounter.isAppInBackground()) {
+            startForegroundService(Intent(applicationContext, LocationUpdatesService::class.java))
+            NotificationUtil.startForeground(this, location)
+        } else {
+            startService(Intent(applicationContext, LocationUpdatesService::class.java))
+        }
+        val locationRequest = locationRequest ?: return
+        val locationCallback = locationCallback ?: return
         try {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                startForegroundService(Intent(applicationContext, LocationUpdatesService::class.java))
-                NotificationUtil.startForeground(this, location)
-            } else {
-                startService(Intent(applicationContext, LocationUpdatesService::class.java))
-                // Still make a foreground service to improve reliability on older Android versions
-                NotificationUtil.startForeground(this, location)
-            }
-            
-            ensureLocationUpdatesActive()
+            fusedLocationClient?.requestLocationUpdates(locationRequest, locationCallback, Looper.myLooper())
         } catch (unlikely: SecurityException) {
             if (wakeLock?.isHeld == true) {
                 wakeLock?.release()
@@ -230,17 +202,7 @@ internal class LocationUpdatesService : Service() {
         val locationCallback = locationCallback ?: return
         try {
             fusedLocationClient?.removeLocationUpdates(locationCallback)
-            isLocationUpdatesActive = false
             SharedPrefsUtil.saveIsTracking(this, false)
-            
-            // Stop foreground service and remove notification
-            stopForegroundService()
-            
-            // Cancel the notification explicitly
-            val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-            notificationManager.cancel(NOTIFICATION_ID)
-            
-            // Stop service
             stopSelf()
         } catch (unlikely: SecurityException) {
             SharedPrefsUtil.saveIsTracking(this, true)
@@ -267,24 +229,16 @@ internal class LocationUpdatesService : Service() {
         Logger.debug(TAG, "New location: $location")
         this.location = location
 
-        // Update notification if needed
-        if (serviceIsRunningInForeground(this) && 
-            SharedPrefsUtil.isNotificationLocationUpdatesEnabled(applicationContext)) {
-            Logger.debug(TAG, "Service is running in foreground & notification updates are enabled. So we update the notification")
-            NotificationUtil.showNotification(this, location)
-        }
-        
-        // Only send location via one path based on app state
-        // If app is in foreground, send via broadcast - the Flutter app will handle it directly
-        // If app is in background, send via FlutterBackgroundManager
-        if (!ActivityCounter.isAppInBackground()) {
-            Logger.debug(TAG, "App in foreground, sending location via broadcast")
+        if (serviceIsRunningInForeground(this)) {
+            if (SharedPrefsUtil.isNotificationLocationUpdatesEnabled(applicationContext)) {
+                Logger.debug(TAG, "Service is running the foreground & notification updates are enabled. So we update the notification")
+                NotificationUtil.showNotification(this, location)
+            }
+            FlutterBackgroundManager.sendLocation(applicationContext, location)
+        } else {
             val intent = Intent(ACTION_BROADCAST)
             intent.putExtra(EXTRA_LOCATION, location)
             LocalBroadcastManager.getInstance(applicationContext).sendBroadcast(intent)
-        } else {
-            Logger.debug(TAG, "App in background, sending location via background manager")
-            FlutterBackgroundManager.sendLocation(applicationContext, location)
         }
     }
 
@@ -328,31 +282,6 @@ internal class LocationUpdatesService : Service() {
         return false
     }
 
-    // Ensure location updates are active
-    private fun ensureLocationUpdatesActive() {
-        val locationRequest = locationRequest ?: return
-        val locationCallback = locationCallback ?: return
-        
-        // Avoid creating duplicate location requests
-        if (isLocationUpdatesActive) {
-            Logger.debug(TAG, "Location updates already active, skipping")
-            return
-        }
-        
-        try {
-            // First remove any existing updates to avoid duplicates
-            fusedLocationClient?.removeLocationUpdates(locationCallback)
-            
-            // Then request new updates
-            fusedLocationClient?.requestLocationUpdates(locationRequest, locationCallback, Looper.getMainLooper() ?: Looper.myLooper())
-            isLocationUpdatesActive = true
-            Logger.debug(TAG, "Location updates requested (or refreshed)")
-        } catch (unlikely: SecurityException) {
-            isLocationUpdatesActive = false
-            Logger.error(TAG, "Lost location permission. Could not request updates. $unlikely")
-        }
-    }
-
     companion object {
         private const val PACKAGE_NAME = "com.icapps.background_location_tracker"
         private val TAG = LocationUpdatesService::class.java.simpleName
@@ -361,7 +290,4 @@ internal class LocationUpdatesService : Service() {
         const val EXTRA_LOCATION = "$PACKAGE_NAME.location"
         const val EXTRA_STARTED_FROM_NOTIFICATION = "$PACKAGE_NAME.started_from_notification"
     }
-    
-    // Track if location updates are active to avoid duplicates
-    private var isLocationUpdatesActive = false
 }
