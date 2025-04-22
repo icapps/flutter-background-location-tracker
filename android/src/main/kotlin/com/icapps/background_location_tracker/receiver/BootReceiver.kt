@@ -8,9 +8,7 @@ import com.icapps.background_location_tracker.service.LocationUpdatesService
 import com.icapps.background_location_tracker.utils.Logger
 import com.icapps.background_location_tracker.utils.SharedPrefsUtil
 
-/**
- * Boot receiver to restart location tracking after device reboot if it was enabled
- */
+/** Boot receiver to restart location tracking after device reboot if it was enabled */
 class BootReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         if (intent.action == Intent.ACTION_BOOT_COMPLETED) {
@@ -27,4 +25,4 @@ class BootReceiver : BroadcastReceiver() {
             }
         }
     }
-} 
+}

@@ -28,7 +28,7 @@ internal object NotificationUtil {
     /**
      * The identifier for the notification displayed for the foreground service.
      */
-    const val NOTIFICATION_ID = 879848645
+    private const val NOTIFICATION_ID = 879848645
 
     /**
      * Android O requires a Notification Channel.
