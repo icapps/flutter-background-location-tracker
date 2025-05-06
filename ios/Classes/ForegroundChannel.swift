@@ -25,8 +25,15 @@ public class ForegroundChannel : NSObject {
     
     private let userDefaults = UserDefaults.standard
     
+    // This method is kept for backwards compatibility but marked as deprecated
+    @available(*, deprecated, message: "Use createMethodChannel(binaryMessenger:) instead")
     public static func getMethodChannel(with registrar: FlutterPluginRegistrar) -> FlutterMethodChannel {
-        return FlutterMethodChannel(name: FOREGROUND_CHANNEL_NAME, binaryMessenger: registrar.messenger())
+        return createMethodChannel(binaryMessenger: registrar.messenger())
+    }
+    
+    // New method that works with FlutterBinaryMessenger directly
+    public static func createMethodChannel(binaryMessenger: FlutterBinaryMessenger) -> FlutterMethodChannel {
+        return FlutterMethodChannel(name: FOREGROUND_CHANNEL_NAME, binaryMessenger: binaryMessenger)
     }
     
     public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
