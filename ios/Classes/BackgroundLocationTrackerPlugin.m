@@ -14,6 +14,8 @@
   [SwiftBackgroundLocationTrackerPlugin registerWithRegistrar:registrar];
 }
 
+// This method is deprecated and will be removed in a future version
+// Use the iOS embedding v2 method instead
 + (void)setPluginRegistrantCallback:(FlutterPluginRegistrantCallback)callback {
     [SwiftBackgroundLocationTrackerPlugin setPluginRegistrantCallback:callback];
 }

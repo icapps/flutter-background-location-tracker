@@ -1,3 +1,9 @@
+## 1.6.0 - 2024-XX-XX
+- Updated to use the modern FlutterPlugin.FlutterPluginBinding pattern
+- Deprecated Registrar, PluginRegistrantCallback, and ShimPluginRegistry usage
+- Added backward compatibility for older Flutter versions
+- Improved handling of plugin registration in background execution
+
 ## 1.5.0 - 2025-01-29
 - Updated gradle dependencies
   
