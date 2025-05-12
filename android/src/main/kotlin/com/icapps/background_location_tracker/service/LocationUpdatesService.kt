@@ -73,7 +73,11 @@ internal class LocationUpdatesService : Service() {
         createLocationRequest()
         getLastLocation()
 
+        // Ensure channel is created before starting tracking
         if (SharedPrefsUtil.isTracking(this)) {
+            // Make sure notification channel exists
+            val channelName = SharedPrefsUtil.getChannelName(this) ?: applicationContext.packageName
+            NotificationUtil.createNotificationChannels(this, channelName)
             startTracking()
         }
     }
@@ -171,6 +175,11 @@ internal class LocationUpdatesService : Service() {
 
         Logger.debug(TAG, "Requesting location updates")
         SharedPrefsUtil.saveIsTracking(this, true)
+        
+        // Ensure notification channel is created before starting foreground service
+        val channelName = SharedPrefsUtil.getChannelName(this) ?: applicationContext.packageName
+        NotificationUtil.createNotificationChannels(this, channelName)
+        
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && ActivityCounter.isAppInBackground()) {
             startForegroundService(Intent(applicationContext, LocationUpdatesService::class.java))
             NotificationUtil.startForeground(this, location)

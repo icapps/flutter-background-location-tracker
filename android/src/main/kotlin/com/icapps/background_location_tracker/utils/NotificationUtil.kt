@@ -36,7 +36,13 @@ internal object NotificationUtil {
      */
     fun createNotificationChannels(context: Context, channelName: String) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val channel = NotificationChannel(CHANNEL_ID, channelName, NotificationManager.IMPORTANCE_LOW)
+            // For Android 13+, we need to use at least IMPORTANCE_DEFAULT for foreground service notifications
+            val importance = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                NotificationManager.IMPORTANCE_DEFAULT
+            } else {
+                NotificationManager.IMPORTANCE_LOW
+            }
+            val channel = NotificationChannel(CHANNEL_ID, channelName, importance)
             channel.enableVibration(false)
             channel.setSound(null, null)
             context.notificationManager().createNotificationChannel(channel)

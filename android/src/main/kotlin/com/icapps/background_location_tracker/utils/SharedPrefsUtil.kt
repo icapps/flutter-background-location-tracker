@@ -16,6 +16,7 @@ internal object SharedPrefsUtil {
     private const val KEY_NOTIFICATION_LOCATION_UPDATES_ENABLED = "background.location.tracker.manager.ENABLE_NOTIFICATION_LOCATION_UPDATES"
     private const val KEY_CANCEL_TRACKING_ACTION_TEXT = "background.location.tracker.manager.ENABLE_CANCEL_TRACKING_TEXT"
     private const val KEY_CANCEL_TRACKING_ACTION_ENABLED = "background.location.tracker.manager.ENABLE_CANCEL_TRACKING_ACTION"
+    private const val KEY_CHANNEL_NAME = "background.location.tracker.manager.CHANNEL_NAME"
 
     private fun Context.prefs() = getSharedPreferences(SHARED_PREFS_FILE_NAME, Context.MODE_PRIVATE)
 
@@ -77,6 +78,15 @@ internal object SharedPrefsUtil {
                 .putBoolean(KEY_CANCEL_TRACKING_ACTION_ENABLED, enableCancelTrackingAction)
                 .apply()
     }
+    
+    fun saveChannelName(ctx: Context, channelName: String) {
+        ctx.prefs()
+                .edit()
+                .putString(KEY_CHANNEL_NAME, channelName)
+                .apply()
+    }
+
+    fun getChannelName(ctx: Context): String? = ctx.prefs().getString(KEY_CHANNEL_NAME, null)
 
     fun getNotificationBody(ctx: Context): String = ctx.prefs().getString(KEY_NOTIFICATION_BODY, "Background tracking active. Tap to open.")!!
 
