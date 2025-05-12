@@ -59,7 +59,19 @@ internal object FlutterBackgroundManager {
 
         flutterLoader.ensureInitializationCompleteAsync(ctx, null, Handler(Looper.getMainLooper())) {
             val callbackHandle = SharedPrefsUtil.getCallbackHandle(ctx)
+            if (callbackHandle == -1L) {
+                Logger.debug(TAG, "No callback handle found, skipping location update")
+                engine.destroy()
+                return@ensureInitializationCompleteAsync
+            }
+            
             val callbackInfo = FlutterCallbackInformation.lookupCallbackInformation(callbackHandle)
+            if (callbackInfo == null) {
+                Logger.debug(TAG, "Callback info is null for handle: $callbackHandle, skipping location update")
+                engine.destroy()
+                return@ensureInitializationCompleteAsync
+            }
+            
             val dartBundlePath = flutterLoader.findAppBundlePath()
             engine.dartExecutor.executeDartCallback(DartExecutor.DartCallback(ctx.assets, dartBundlePath, callbackInfo))
         }
