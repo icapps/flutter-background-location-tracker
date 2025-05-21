@@ -19,17 +19,29 @@ import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
 import io.flutter.plugin.common.MethodChannel.Result
-import io.flutter.plugin.common.PluginRegistry
+import io.flutter.embedding.engine.plugins.FlutterPlugin.FlutterPluginBinding
+import io.flutter.embedding.engine.FlutterEngine
 
 class BackgroundLocationTrackerPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
     private var lifecycle: Lifecycle? = null
     private var methodCallHelper: MethodCallHelper? = null
+    private var channel: MethodChannel? = null
+    private var applicationContext: Context? = null
 
-    override fun onAttachedToEngine(binding: FlutterPlugin.FlutterPluginBinding) {
-        registerBackgroundLocationManager(binding.binaryMessenger, binding.applicationContext)
+    override fun onAttachedToEngine(binding: FlutterPluginBinding) {
+        applicationContext = binding.applicationContext
+        channel = MethodChannel(binding.binaryMessenger, FOREGROUND_CHANNEL_NAME)
+        channel?.setMethodCallHandler(this)
+        
+        if (methodCallHelper == null) {
+            methodCallHelper = MethodCallHelper.getInstance(binding.applicationContext)
+        }
     }
 
-    override fun onDetachedFromEngine(binding: FlutterPlugin.FlutterPluginBinding) {
+    override fun onDetachedFromEngine(binding: FlutterPluginBinding) {
+        channel?.setMethodCallHandler(null)
+        channel = null
+        applicationContext = null
     }
 
     override fun onMethodCall(call: MethodCall, result: Result) {
@@ -38,10 +50,7 @@ class BackgroundLocationTrackerPlugin : FlutterPlugin, MethodCallHandler, Activi
 
     override fun onAttachedToActivity(binding: ActivityPluginBinding) {
         lifecycle = FlutterLifecycleAdapter.getActivityLifecycle(binding)
-        if (methodCallHelper == null) {
-            ActivityCounter.attach(binding.activity)
-            methodCallHelper = MethodCallHelper.getInstance(binding.activity.applicationContext)
-        }
+        ActivityCounter.attach(binding.activity)
         methodCallHelper?.let {
             lifecycle?.removeObserver(it)
             lifecycle?.addObserver(it)
@@ -50,67 +59,42 @@ class BackgroundLocationTrackerPlugin : FlutterPlugin, MethodCallHandler, Activi
 
     override fun onDetachedFromActivity() {}
 
-    override fun onReattachedToActivityForConfigChanges(binding: ActivityPluginBinding) {}
+    override fun onReattachedToActivityForConfigChanges(binding: ActivityPluginBinding) {
+        onAttachedToActivity(binding)
+    }
 
-    override fun onDetachedFromActivityForConfigChanges() {}
+    override fun onDetachedFromActivityForConfigChanges() {
+        onDetachedFromActivity()
+    }
 
     companion object {
         private const val TAG = "FBLTPlugin"
         private const val FOREGROUND_CHANNEL_NAME = "com.icapps.background_location_tracker/foreground_channel"
 
-        var pluginRegistryCallback: PluginRegistry.PluginRegistrantCallback? = null
+        // New static properties for background execution
+        private var flutterEngine: FlutterEngine? = null
+
+        // For compatibility with older plugins
+        @Deprecated("Use FlutterEngine's plugin registry instead")
+        private var pluginRegistrantCallback: ((FlutterEngine) -> Unit)? = null
 
         @JvmStatic
-        private fun registerBackgroundLocationManager(messenger: BinaryMessenger, ctx: Context) {
-            val channel = MethodChannel(messenger, FOREGROUND_CHANNEL_NAME)
-            channel.setMethodCallHandler(BackgroundLocationTrackerPlugin().apply {
-                if (methodCallHelper == null) {
-                    methodCallHelper = MethodCallHelper.getInstance(ctx)
-                }
-                methodCallHelper?.let {
-                    lifecycle?.removeObserver(it)
-                    lifecycle?.addObserver(it)
-                }
-            })
+        @Deprecated("Use the Android embedding v2 instead")
+        fun setPluginRegistrantCallback(callback: ((FlutterEngine) -> Unit)) {
+            pluginRegistrantCallback = callback
         }
 
+        // Method to get or create the Flutter engine for background execution
         @JvmStatic
-        fun registerWith(registrar: PluginRegistry.Registrar) {
-            val activity = registrar.activity()
-            if (activity == null) {
-                Logger.debug(TAG, "Activity should not be null while registering this plugin")
-                return
+        fun getFlutterEngine(context: Context): FlutterEngine {
+            return flutterEngine ?: FlutterEngine(context).also {
+                flutterEngine = it
+                pluginRegistrantCallback?.invoke(it)
             }
-
-            val lifecycle: Lifecycle = if (activity is LifecycleOwner) {
-                (activity as LifecycleOwner).lifecycle
-            } else {
-                Logger.debug(TAG, "Your activity has not implemented a lifecycle owner. We will create one for you.")
-                @Suppress("DEPRECATION")
-                ProxyLifecycleProvider(activity).lifecycle
-            }
-
-            ActivityCounter.attach(activity)
-            val channel = MethodChannel(registrar.messenger(), FOREGROUND_CHANNEL_NAME)
-            channel.setMethodCallHandler(BackgroundLocationTrackerPlugin().apply {
-                if (methodCallHelper == null) {
-                    methodCallHelper = MethodCallHelper.getInstance(registrar.activeContext())
-                }
-                methodCallHelper?.let {
-                    lifecycle.removeObserver(it)
-                    lifecycle.addObserver(it)
-                }
-            })
-        }
-
-        @Deprecated(message = "Use the Android v2 embedding method.")
-        @JvmStatic
-        fun setPluginRegistrantCallback(pluginRegistryCallback: PluginRegistry.PluginRegistrantCallback) {
-            BackgroundLocationTrackerPlugin.pluginRegistryCallback = pluginRegistryCallback
         }
     }
 
-    @Deprecated(message = "Use the Android v2 embedding method.")
+    @Deprecated("Use the Android embedding v2 instead")
     private class ProxyLifecycleProvider internal constructor(activity: Activity) : Application.ActivityLifecycleCallbacks, LifecycleOwner {
         override val lifecycle = LifecycleRegistry(this)
         private val registrarActivityHashCode: Int = activity.hashCode()

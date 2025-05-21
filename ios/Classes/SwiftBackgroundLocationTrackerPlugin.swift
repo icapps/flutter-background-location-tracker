@@ -17,7 +17,8 @@ public class SwiftBackgroundLocationTrackerPlugin: FlutterPluginAppLifeCycleDele
     private static var initializedBackgroundCallbacksStarted = false
     private static var locationData: [String: Any]? = nil
     
-    private static var flutterPluginRegistrantCallback: FlutterPluginRegistrantCallback?
+    // This will store the plugin that registered engines
+    private static var pluginRegistrants: [(FlutterEngine) -> Void] = []
     
     private let locationManager = LocationManager.shared()
     
@@ -27,12 +28,13 @@ extension SwiftBackgroundLocationTrackerPlugin: FlutterPlugin {
     
     @objc
     public static func setPluginRegistrantCallback(_ callback: @escaping FlutterPluginRegistrantCallback) {
-        flutterPluginRegistrantCallback = callback
+        // Store the callback in our new pluginRegistrants array
+        pluginRegistrants.append(callback)
     }
     
     public static func register(with registrar: FlutterPluginRegistrar) {
         foregroundChannel = ForegroundChannel()
-        let methodChannel = ForegroundChannel.getMethodChannel(with: registrar)
+        let methodChannel = ForegroundChannel.createMethodChannel(binaryMessenger: registrar.messenger())
         let instance = SwiftBackgroundLocationTrackerPlugin()
         registrar.addMethodCallDelegate(instance, channel: methodChannel)
         registrar.addApplicationDelegate(instance)
@@ -61,7 +63,10 @@ extension SwiftBackgroundLocationTrackerPlugin: FlutterPlugin {
             
             CustomLogger.log(message: "FlutterEngine.run returned `\(success)`")
             if success {
-                SwiftBackgroundLocationTrackerPlugin.flutterPluginRegistrantCallback?(flutterEngine)
+                // Run all the registered plugin registrants
+                for registrant in pluginRegistrants {
+                    registrant(flutterEngine)
+                }
                 self.flutterEngine = flutterEngine
             } else {
                 CustomLogger.log(message: "FlutterEngine.run returned `false` we will cleanup the flutterEngine")

@@ -53,8 +53,6 @@ Or add the info to the Info.plist
 
 ### Update the AppDelegate
 
-Make sure you call the `setPluginRegistrantCallback` so other plugins can be accessed in the background.
-
 ```
 import UIKit
 import Flutter
@@ -65,6 +63,8 @@ import background_location_tracker
     override func application(_ application: UIApplication,didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         GeneratedPluginRegistrant.register(with: self)
 
+        // Register plugins for background execution - this method is deprecated 
+        // but kept for backward compatibility
         BackgroundLocationTrackerPlugin.setPluginRegistrantCallback { registry in
             GeneratedPluginRegistrant.register(with: registry)
         }
@@ -124,7 +124,21 @@ Future stopLocationTracking() async {
 
 ```
 This is mostly caused by a misconfiguration of the plugin:
-Android Pre v2 embedding: make sure the plugin registrant callback is set
-Android v2 embedding: Log a new github issues. This
-iOS: make sure the plugin registrant callback is set
+- Android: This plugin now uses Flutter's Plugin V2 embedding pattern (FlutterPluginBinding) so you don't need to set a manual plugin registrant callback.
+- iOS: For compatibility with older Flutter versions, the setPluginRegistrantCallback is still available but will be removed in a future version.
+
+If you're using Flutter 1.12 or later, the plugin should work out of the box with the V2 embedding.
 ```
+
+## Migration Guide
+
+### Upgrading from older versions
+
+This plugin has been updated to use the modern Flutter Plugin V2 embedding pattern with FlutterPluginBinding. If you're using Flutter 1.12 or later, you don't need to make any changes to your app's code.
+
+For backward compatibility, the older methods are still available but marked as deprecated:
+
+- `BackgroundLocationTrackerPlugin.setPluginRegistrantCallback` on Android
+- `BackgroundLocationTrackerPlugin.setPluginRegistrantCallback` on iOS
+
+These methods will be removed in a future version of the plugin.
