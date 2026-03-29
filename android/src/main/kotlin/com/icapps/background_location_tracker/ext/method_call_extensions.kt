@@ -9,7 +9,7 @@ fun MethodCall.checkRequiredFields(keys: Iterable<String>, result: MethodChannel
 
     keys.forEach {
         if (!hasArgument(it)) {
-            sb.appendln("$it not found, but required")
+            sb.appendLine("$it not found, but required")
         }
     }
     if (sb.isEmpty()) return true

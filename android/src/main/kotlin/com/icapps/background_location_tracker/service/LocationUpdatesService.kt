@@ -251,11 +251,10 @@ internal class LocationUpdatesService : Service() {
     private fun createLocationRequest() {
         val interval = SharedPrefsUtil.trackingInterval(this)
         val distanceFilter = SharedPrefsUtil.distanceFilter(this)
-        locationRequest = LocationRequest.create()
-            .setInterval(interval)
-            .setFastestInterval(interval / 2)
-            .setPriority(Priority.PRIORITY_HIGH_ACCURACY)
-            .setSmallestDisplacement(distanceFilter)
+        locationRequest = LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, interval)
+            .setMinUpdateIntervalMillis(interval / 2)
+            .setMinUpdateDistanceMeters(distanceFilter)
+            .build()
     }
 
     /**
