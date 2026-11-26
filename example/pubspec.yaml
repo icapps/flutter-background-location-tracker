@@ -11,6 +11,7 @@ dependencies:
   flutter:
     sdk: flutter
   flutter_local_notifications: ^18.0.1
+  material_ui: ^1.11.1
   permission_handler: ^11.3.1
   shared_preferences: ^2.4.0
 

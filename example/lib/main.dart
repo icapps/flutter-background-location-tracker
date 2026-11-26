@@ -3,7 +3,7 @@ import 'dart:io';
 import 'dart:math';
 
 import 'package:background_location_tracker/background_location_tracker.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:permission_handler/permission_handler.dart';
