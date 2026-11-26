@@ -33,9 +33,11 @@ class AndroidConfig {
   /// The interval in which location updates are requested to be delivered.
   /// This is a request to the system, not a guarantee
   /// Defaults to an update every 10 seconds
+  /// Only used by `initialize`, it is ignored by `startTracking`. Use `updateTrackingInterval` to change it afterwards
   final Duration trackingInterval;
 
   /// The distance in meters that should be moved before updates are sent.
+  /// Only used by `initialize`, it is ignored by `startTracking`
   /// Defaults to no filter (null)
   final double? distanceFilterMeters;
 

@@ -31,6 +31,9 @@ class BackgroundLocationUpdateData {
   /// The accuracy of the speed value, measured in meters per second. Negative value if not available.
   final double speedAccuracy;
 
+  /// The UTC time at which the location was determined, with millisecond precision. Null if not available.
+  final DateTime? time;
+
   const BackgroundLocationUpdateData({
     required this.lat,
     required this.lon,
@@ -41,6 +44,7 @@ class BackgroundLocationUpdateData {
     required this.courseAccuracy,
     required this.speed,
     required this.speedAccuracy,
+    this.time,
   });
 
   Map<String, dynamic> toMap() {
@@ -54,10 +58,12 @@ class BackgroundLocationUpdateData {
       'courseAccuracy': courseAccuracy,
       'speed': speed,
       'speedAccuracy': speedAccuracy,
+      'time': time?.millisecondsSinceEpoch,
     };
   }
 
   factory BackgroundLocationUpdateData.fromMap(Map<String, dynamic> map) {
+    final time = map['time'];
     return BackgroundLocationUpdateData(
       lat: map['lat'].toDouble(),
       lon: map['lon'].toDouble(),
@@ -68,6 +74,9 @@ class BackgroundLocationUpdateData {
       courseAccuracy: map['courseAccuracy'].toDouble(),
       speed: map['speed'].toDouble(),
       speedAccuracy: map['speedAccuracy'].toDouble(),
+      time: time == null
+          ? null
+          : DateTime.fromMillisecondsSinceEpoch(time.toInt(), isUtc: true),
     );
   }
 
@@ -89,7 +98,8 @@ class BackgroundLocationUpdateData {
         other.course == course &&
         other.courseAccuracy == courseAccuracy &&
         other.speed == speed &&
-        other.speedAccuracy == speedAccuracy;
+        other.speedAccuracy == speedAccuracy &&
+        other.time == time;
   }
 
   @override
@@ -102,12 +112,13 @@ class BackgroundLocationUpdateData {
         course.hashCode ^
         courseAccuracy.hashCode ^
         speed.hashCode ^
-        speedAccuracy.hashCode;
+        speedAccuracy.hashCode ^
+        time.hashCode;
   }
 
   @override
   String toString() {
-    return 'BackgroundLocationUpdateData(lat: $lat, lon: $lon, horizontalAccuracy: $horizontalAccuracy, alt: $alt, verticalAccuracy: $verticalAccuracy, course: $course, courseAccuracy: $courseAccuracy, speed: $speed, speedAccuracy: $speedAccuracy)';
+    return 'BackgroundLocationUpdateData(lat: $lat, lon: $lon, horizontalAccuracy: $horizontalAccuracy, alt: $alt, verticalAccuracy: $verticalAccuracy, course: $course, courseAccuracy: $courseAccuracy, speed: $speed, speedAccuracy: $speedAccuracy, time: $time)';
   }
 
   BackgroundLocationUpdateData copyWith({
@@ -120,6 +131,7 @@ class BackgroundLocationUpdateData {
     double? courseAccuracy,
     double? speed,
     double? speedAccuracy,
+    DateTime? time,
   }) {
     return BackgroundLocationUpdateData(
       lat: lat ?? this.lat,
@@ -131,6 +143,7 @@ class BackgroundLocationUpdateData {
       courseAccuracy: courseAccuracy ?? this.courseAccuracy,
       speed: speed ?? this.speed,
       speedAccuracy: speedAccuracy ?? this.speedAccuracy,
+      time: time ?? this.time,
     );
   }
 }

@@ -118,6 +118,36 @@ Future stopLocationTracking() async {
 
 ```
 
+`startTracking(config:)` only overrides the notification options. `trackingInterval` and `distanceFilterMeters` are ignored, these are configured with `initialize`.
+
+### Changing the interval while tracking (Android)
+
+`updateTrackingInterval` changes the interval without restarting tracking. It can be called from the UI and from the background callback.
+
+```
+@pragma('vm:entry-point')
+void backgroundCallback() {
+  BackgroundLocationTrackerManager.handleBackgroundUpdated((data) async {
+    await Repo().update(data);
+    final interval = data.speed > 5 ? const Duration(seconds: 1) : const Duration(seconds: 3);
+    await BackgroundLocationTrackerManager.updateTrackingInterval(interval);
+  });
+}
+```
+
+- Setting the interval that is already used does nothing.
+- When not tracking, the interval is saved and used the next time tracking starts.
+- The interval survives a restart of the service. Calling `initialize` resets it to the configured `trackingInterval`, also while tracking.
+- An interval shorter than 1 millisecond results in an `ArgumentError`.
+- If the interval could not be changed, e.g. because the location permission was lost, this results in a `PlatformException`.
+- It has no effect on iOS, because iOS has no location interval.
+
+### Location time
+
+`BackgroundLocationUpdateData.time` is the UTC time at which the location was determined, with millisecond precision. It is null for data that was stored before version 1.7.0.
+
+When multiple locations are received at once, the callback is called for each of them in order, without waiting for the previous call to complete. Use `time` if the order matters after asynchronous work.
+
 # FAQ:
 
 #### I get a Unhandled Exception: MissingPluginException(No implementation found for method .... on channel ...)

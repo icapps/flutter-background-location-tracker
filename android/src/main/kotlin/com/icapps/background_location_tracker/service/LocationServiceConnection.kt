@@ -32,9 +32,9 @@ internal class LocationServiceConnection(private val listener: LocationUpdateLis
         }
     }
 
-    fun onResume(ctx: Context) = LocalBroadcastManager.getInstance(ctx).registerReceiver(locationReceiver, IntentFilter(LocationUpdatesService.ACTION_BROADCAST))
+    fun registerReceiver(ctx: Context) = LocalBroadcastManager.getInstance(ctx).registerReceiver(locationReceiver, IntentFilter(LocationUpdatesService.ACTION_BROADCAST))
 
-    fun onPause(ctx: Context) = LocalBroadcastManager.getInstance(ctx).unregisterReceiver(locationReceiver)
+    fun unregisterReceiver(ctx: Context) = LocalBroadcastManager.getInstance(ctx).unregisterReceiver(locationReceiver)
 
     fun onStop(ctx: Context) {
         if (bound) {
