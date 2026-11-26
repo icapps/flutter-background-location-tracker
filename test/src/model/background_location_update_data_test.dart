@@ -63,9 +63,49 @@ void main() {
     expect(data == data3, false);
 
     expect(data.toString(),
-        'BackgroundLocationUpdateData(lat: 51.45, lon: 4.5, horizontalAccuracy: 1.2, alt: 42.3, verticalAccuracy: 0.3, course: 128.3, courseAccuracy: 14.3, speed: 12.2, speedAccuracy: 0.9)');
+        'BackgroundLocationUpdateData(lat: 51.45, lon: 4.5, horizontalAccuracy: 1.2, alt: 42.3, verticalAccuracy: 0.3, course: 128.3, courseAccuracy: 14.3, speed: 12.2, speedAccuracy: 0.9, time: null)');
 
     expect(data.hashCode == data2.hashCode, true);
     expect(data.hashCode == data3.hashCode, false);
+  });
+
+  group('time', () {
+    final time = DateTime.utc(2025, 8, 1, 12, 30, 15, 123);
+    final data = BackgroundLocationUpdateData(
+      lat: 51.45,
+      lon: 4.5,
+      horizontalAccuracy: 1.2,
+      alt: 42.3,
+      verticalAccuracy: 0.3,
+      course: 128.3,
+      courseAccuracy: 14.3,
+      speed: 12.2,
+      speedAccuracy: 0.9,
+      time: time,
+    );
+
+    test('is saved as epoch milliseconds and restored in UTC', () {
+      expect(data.toMap()['time'], time.millisecondsSinceEpoch);
+      final restored = BackgroundLocationUpdateData.fromJson(data.toJson());
+      expect(restored.time, time);
+      expect(restored.time!.isUtc, true);
+      expect(restored, data);
+      expect(restored.hashCode, data.hashCode);
+    });
+
+    test('is optional in stored data', () {
+      final map = data.toMap()..remove('time');
+      final restored = BackgroundLocationUpdateData.fromMap(map);
+      expect(restored.time, null);
+      expect(restored == data, false);
+    });
+
+    test('copyWith, toString', () {
+      final otherTime = time.add(const Duration(milliseconds: 1));
+      expect(data.copyWith(lat: 1).time, time);
+      expect(data.copyWith(time: otherTime).time, otherTime);
+      expect(data.copyWith(time: otherTime) == data, false);
+      expect(data.toString(), endsWith('time: 2025-08-01 12:30:15.123Z)'));
+    });
   });
 }

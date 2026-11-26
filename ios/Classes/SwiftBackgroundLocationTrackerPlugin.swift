@@ -136,6 +136,7 @@ extension SwiftBackgroundLocationTrackerPlugin: CLLocationManagerDelegate {
             "course_accuracy": -1,
             "speed": location.speed,
             "speed_accuracy": location.speedAccuracy,
+            "time": Int64((location.timestamp.timeIntervalSince1970 * 1000).rounded()),
             "logging_enabled": SharedPrefsUtil.isLoggingEnabled(),
         ]
         

@@ -17,11 +17,12 @@ import io.flutter.view.FlutterCallbackInformation
 
 internal object FlutterBackgroundManager {
     private const val BACKGROUND_CHANNEL_NAME = "com.icapps.background_location_tracker/background_channel"
+    private const val MAX_PENDING_LOCATIONS = 32
 
     private val flutterLoader = FlutterLoader()
     private var backgroundChannel: MethodChannel? = null
     private var isInitialized = false
-    private var pendingLocation: Location? = null
+    private val pendingLocations = ArrayDeque<Location>()
     private var isSettingUp = false
 
     private fun getInitializedFlutterEngine(ctx: Context): FlutterEngine {
@@ -36,8 +37,11 @@ internal object FlutterBackgroundManager {
             // Engine is already initialized, send location immediately
             sendLocationToChannel(ctx, location)
         } else {
-            // Store the location and initialize if needed
-            pendingLocation = location
+            // Store the location and initialize if needed, dropping the oldest when the queue is full
+            if (pendingLocations.size >= MAX_PENDING_LOCATIONS) {
+                pendingLocations.removeFirst()
+            }
+            pendingLocations.addLast(location)
             setupBackgroundChannelIfNeeded(ctx)
         }
     }
@@ -64,12 +68,8 @@ internal object FlutterBackgroundManager {
                         isSettingUp = false
                         result.success(true)
                         
-                        // Send any pending location
-                        pendingLocation?.let { location ->
-                            Logger.debug("BackgroundManager", "Sending pending location after reuse")
-                            sendLocationToChannel(ctx, location)
-                            pendingLocation = null
-                        }
+                        // Send the pending locations
+                        flushPendingLocations(ctx)
                     }
                     else -> {
                         result.notImplemented()
@@ -81,12 +81,8 @@ internal object FlutterBackgroundManager {
             isInitialized = true
             isSettingUp = false
             
-            // Send any pending location immediately if we have one
-            pendingLocation?.let { location ->
-                Logger.debug("BackgroundManager", "Sending pending location immediately (executor already running)")
-                sendLocationToChannel(ctx, location)
-                pendingLocation = null
-            }
+            // Send the pending locations immediately
+            flushPendingLocations(ctx)
             
             return
         }
@@ -100,12 +96,8 @@ internal object FlutterBackgroundManager {
                     isSettingUp = false
                     result.success(true)
                     
-                    // Send any pending location
-                    pendingLocation?.let { location ->
-                        Logger.debug("BackgroundManager", "Sending pending location after initialization")
-                        sendLocationToChannel(ctx, location)
-                        pendingLocation = null
-                    }
+                    // Send the pending locations
+                    flushPendingLocations(ctx)
                 }
                 else -> {
                     result.notImplemented()
@@ -133,6 +125,13 @@ internal object FlutterBackgroundManager {
         }
     }
 
+    private fun flushPendingLocations(ctx: Context) {
+        Logger.debug("BackgroundManager", "Sending ${pendingLocations.size} pending locations")
+        while (pendingLocations.isNotEmpty()) {
+            sendLocationToChannel(ctx, pendingLocations.removeFirst())
+        }
+    }
+
     private fun sendLocationToChannel(ctx: Context, location: Location) {
         val channel = backgroundChannel ?: return
         Logger.debug("BackgroundManager", "Sending location to initialized channel")
@@ -147,6 +146,7 @@ internal object FlutterBackgroundManager {
         data["course_accuracy"] = -1.0
         data["speed"] = if (location.hasSpeed()) location.speed else -1.0
         data["speed_accuracy"] = -1.0
+        data["time"] = location.time
         data["logging_enabled"] = SharedPrefsUtil.isLoggingEnabled(ctx)
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -176,7 +176,7 @@ internal object FlutterBackgroundManager {
         isSettingUp = false
         backgroundChannel?.setMethodCallHandler(null)
         backgroundChannel = null
-        pendingLocation = null
+        pendingLocations.clear()
         
         // Instead of destroying the engine completely, just mark it as not initialized
         // This allows for reuse without the "DartExecutor already running" error

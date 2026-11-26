@@ -14,6 +14,7 @@ fileprivate enum ForegroundMethods: String {
     case isTracking = "isTracking"
     case startTracking = "startTracking"
     case stopTracking = "stopTracking"
+    case updateTrackingInterval = "updateTrackingInterval"
 }
 
 public class ForegroundChannel : NSObject {
@@ -46,6 +47,9 @@ public class ForegroundChannel : NSObject {
             startTracking(result)
         case ForegroundMethods.stopTracking.rawValue:
             stopTracking(result)
+        case ForegroundMethods.updateTrackingInterval.rawValue:
+            // iOS has no location interval
+            result(true)
         default:
             result(FlutterMethodNotImplemented)
         }

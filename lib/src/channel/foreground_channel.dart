@@ -69,6 +69,17 @@ class ForegroundChannel {
 
   static Future<void> stopTracking() =>
       _foregroundChannel.invokeMethod('stopTracking');
+
+  static Future<void> updateTrackingInterval(Duration interval) async {
+    if (interval.inMilliseconds <= 0) {
+      throw ArgumentError.value(
+          '$interval', 'interval', 'should be at least 1 millisecond');
+    }
+    await _foregroundChannel.invokeMethod<void>(
+      'updateTrackingInterval',
+      {'android_update_interval_msec': interval.inMilliseconds},
+    );
+  }
 }
 
 String _activityTypeString(ActivityType activityType) {

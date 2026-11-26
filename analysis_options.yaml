@@ -10,6 +10,9 @@ analyzer:
     - '**.g.dart'
     - 'lib/util/locale/**'
     - 'lib/util/license.dart'
+    - build/**
+    - android/**
+    - ios/**
 
 linter:
   rules:

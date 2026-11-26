@@ -4,6 +4,7 @@ import 'dart:math';
 
 import 'package:background_location_tracker/background_location_tracker.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -37,7 +38,6 @@ Future<void> main() async {
   runApp(MyApp());
 }
 
-@override
 class MyApp extends StatefulWidget {
   const MyApp({Key? key}) : super(key: key);
 
@@ -46,6 +46,8 @@ class MyApp extends StatefulWidget {
 }
 
 class MyAppState extends State<MyApp> {
+  static const _intervals = [Duration(seconds: 1), Duration(seconds: 3), Duration(seconds: 10)];
+
   var isTracking = false;
 
   Timer? _timer;
@@ -116,6 +118,19 @@ class MyAppState extends State<MyApp> {
                   ],
                 ),
               ),
+              if (Platform.isAndroid) ...[
+                const Text('Tracking interval'),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    for (final interval in _intervals)
+                      MaterialButton(
+                        onPressed: () => _updateTrackingInterval(interval),
+                        child: Text('${interval.inSeconds}s'),
+                      ),
+                  ],
+                ),
+              ],
               const SizedBox(height: 8),
               Container(
                 color: Colors.black12,
@@ -159,6 +174,15 @@ class MyAppState extends State<MyApp> {
     setState(() {});
   }
 
+  Future<void> _updateTrackingInterval(Duration interval) async {
+    try {
+      await BackgroundLocationTrackerManager.updateTrackingInterval(interval);
+      print('Tracking interval updated to $interval'); // ignore: avoid_print
+    } on PlatformException catch (e) {
+      print('Failed to update the tracking interval: $e'); // ignore: avoid_print
+    }
+  }
+
   Future<void> _requestLocationPermission() async {
     final result = await Permission.location.request();
     if (result == PermissionStatus.granted) {
@@ -198,7 +222,7 @@ class Repo {
   factory Repo() => _instance ??= Repo._();
 
   Future<void> update(BackgroundLocationUpdateData data) async {
-    final text = 'Location Update: Lat: ${data.lat} Lon: ${data.lon}';
+    final text = 'Location Update: Lat: ${data.lat} Lon: ${data.lon} Time: ${data.time?.toIso8601String()}';
     print(text); // ignore: avoid_print
     sendNotification(text);
     await LocationDao().saveLocation(data);
@@ -217,11 +241,19 @@ class LocationDao {
 
   SharedPreferences? _prefs;
 
+  Future<void> _lastSave = Future.value();
+
   Future<SharedPreferences> get prefs async => _prefs ??= await SharedPreferences.getInstance();
 
-  Future<void> saveLocation(BackgroundLocationUpdateData data) async {
+  /// Multiple locations can be received at once, so they are saved one by one
+  Future<void> saveLocation(BackgroundLocationUpdateData data) =>
+      _lastSave = _lastSave.then((_) => _saveLocation(data)).catchError((Object e) {
+        print('Failed to save the location: $e'); // ignore: avoid_print
+      });
+
+  Future<void> _saveLocation(BackgroundLocationUpdateData data) async {
     final locations = await getLocations();
-    locations.add('${DateTime.now().toIso8601String()}       ${data.lat},${data.lon}');
+    locations.add('${(data.time ?? DateTime.now()).toIso8601String()}       ${data.lat},${data.lon}');
     await (await prefs).setString(_locationsKey, locations.join(_locationSeparator));
   }
 

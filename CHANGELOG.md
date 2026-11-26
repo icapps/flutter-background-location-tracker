@@ -1,3 +1,13 @@
+## 1.7.0
+- Added `BackgroundLocationTrackerManager.updateTrackingInterval` to change the location interval while tracking (Android only)
+- Added `time` to `BackgroundLocationUpdateData`, the UTC time at which the location was determined
+- Android: Fixed tracking with the previous interval (or 10 seconds on a first install) instead of the configured one
+- Android: A changed interval or distance filter is applied immediately when `initialize` is called while tracking
+- Android: All locations are sent when multiple are received at once, or while the background isolate is starting
+- Android: Fixed missing locations while the app is moving to the background or the foreground
+- Android: Fixed `stopTracking` doing nothing when called from the background callback after a process restart
+- Documented that `startTracking(config:)` ignores `trackingInterval` and `distanceFilterMeters`
+
 ## 1.6.1 - 2025-07-17
 - Fixed callback being called once in Android (improved handling) (#91)
 - Fixed "FlutterJNI.loadLibrary/prefetchDefaultFontManager/init called more than once"
